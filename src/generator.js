@@ -4,20 +4,20 @@
 var generator = {
     dom : document,
     accept : ['button','div','section','ul','li','nav','form','radio','checkbox','footer','header'],
-    templates: {
-        "form":{
-            "button":"<button class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
-            "checkbox":"",
-            "radiobutton":"",
-            "radiogroup":"",
-            "input":"<input type=\"text\" class=\"{{object.parent.class}}\" />",
-            "textarea":"<textarea class=\"{{object.parent.class}}\">class=\"{{object.parent.content}}\"</textarea>"
+    template: {
+        form:{
+            button:"<button class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
+            checkbox:"",
+            radiobutton:"",
+            radiogroup:"",
+            input:"<input type=\"text\" class=\"{{object.parent.class}}\" />",
+            textarea:"<textarea class=\"{{object.parent.class}}\">class=\"{{object.parent.content}}\"</textarea>"
         },
-        "layout":{
-            "header":"",
-            "footer":"",
-            "nav":"",
-            "list":"<ul class=\"{{object.parent.class}}\"><li class=\"{{object.child.class}}\">{{object.child.label}}</li></ul>"
+        layout:{
+            header:"",
+            footer:"",
+            nav:"",
+            list:"<ul class=\"{{object.parent.class}}\"><li class=\"{{object.child.class}}\">{{object.child.label}}</li></ul>"
         }
     },
     build:function(obj){
@@ -77,7 +77,7 @@ var generator = {
         }
     },
     init:function(src) {
-        if(src == 'object'){
+        if(typeof src == 'object'){
             generator.build(src)
         }else{
             var data = new XMLHttpRequest();
@@ -94,45 +94,45 @@ var generator = {
     }
 };
 new generator.init('data/demo.json'); // method using external JSON
-/*new generator.build(
-{
-    "core": [{
-    "type": "button",
-    "template":null,
-    "class":"boo",
-    "id":"casas",
-    "disabled":false,
-    "attributes":{
-        "data-href":"",
-        "data-prop":""
-    },
-    "content":"Click Me",
-    "style":{
-        "background":"#fff",
-        "border-right":"1px solid #000"
-    },
-    "events":{
-        "click":"console.log('this')"
-    },
-    "parent":"body"
-},{
-        "type": "button",
-        "template":null,
-        "class":"boo",
-        "id":"casas",
-        "disabled":false,
-        "attributes":{
-            "data-href":"",
-            "data-prop":""
-        },
-        "content":"Don't Click Me",
-        "style":{
-            "background":"#fff",
-            "border-right":"1px solid #000"
-        },
-        "events":{
-            "click":"console.log('sdfsdfsdf')"
-        },
-        "parent":"body"
-    }]
-});*/
+/*new generator.init(
+    {
+        "core": [{
+            "type": "button",
+            "template": "form.button",
+            "class": "boo",
+            "id": "casas",
+            "disabled": false,
+            "attributes": {
+                "data-href": "",
+                "data-prop": ""
+            },
+            "content": "Click Me",
+            "style": {
+                "background": "#fff",
+                "border-right": "1px solid #000"
+            },
+            "events": {
+                "click": "console.log('this')"
+            },
+            "parent": "body"
+        }, {
+            "type": "button",
+            "template": null,
+            "class": "boo",
+            "id": "casas",
+            "disabled": false,
+            "attributes": {
+                "data-href": "",
+                "data-prop": ""
+            },
+            "content": "Don't Click Me",
+            "style": {
+                "background": "#fff",
+                "border-right": "1px solid #000"
+            },
+            "events": {
+                "click": "console.log('sdfsdfsdf')"
+            },
+            "parent": "body"
+        }]
+    });*/

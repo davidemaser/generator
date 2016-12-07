@@ -2,7 +2,7 @@
   "core": [
     {
       "type": "button",
-      "template":null,
+      "template": "form.button",
       "class": "boo",
       "id": "casas",
       "disabled": false,
