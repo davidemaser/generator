@@ -6,20 +6,28 @@ var generator = {
     nomenclature:{
         generator:'generator-id="{{type}}-{{unit}}"'
     },
-    generatorIdFormat : 'generator-id=""',
     template: {
         form:{
             button:"<button {{gen.id}} class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
             checkbox:"<input type=\"checkbox\" {{gen.id}} class=\"{{object.parent.class}}\">",
-            radiobutton:"",
+            radiobutton:"<input type=\"radiobutton\" {{gen.id}} class=\"{{object.parent.class}}\">",
             input:"<input type=\"text\" {{gen.id}} class=\"{{object.parent.class}}\" />",
-            textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\">class=\"{{object.parent.content}}\"</textarea>"
+            textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\">{{object.parent.content}}</textarea>",
+            select:{
+                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\">{{@inject:[%each.child%]}</select>",
+                child : "<option {{gen.id}}>{{object.child.content}}</option>"
+
+            }
         },
-        layout:{
-            header:"<header {{gen.id}} class=\"{{object.parent.class}}\">{{@include:layout.nav}}</header>",
-            footer:"<footer {{gen.id}} class=\"{{object.parent.class}}\"></footer>",
-            nav:"<nav {{gen.id}} class=\"{{object.parent.class}}\"></nav>",
-            list:"<ul {{gen.id}} class=\"{{object.parent.class}}\"><li {{gen.id}} class=\"{{object.child.class}}\">{{object.child.content}}</li></ul>"
+        layout: {
+            header: "<header {{gen.id}} class=\"{{object.parent.class}}\">{{@include:layout.nav}}</header>",
+            footer: "<footer {{gen.id}} class=\"{{object.parent.class}}\"></footer>",
+            nav: "<nav {{gen.id}} class=\"{{object.parent.class}}\"></nav>",
+            list: {
+                parent: "<ul {{gen.id}} class=\"{{object.parent.class}}\">{{@inject:[%each.child%]}</ul>",
+                child:"<li {{gen.id}} class=\"{{object.child.class}}\">{{object.child.content}}</li>"
+
+            }
         },
         core : {}
     },
@@ -42,6 +50,10 @@ var generator = {
         return _string.replace('{{type}}',type).replace('{{unit}}',unit);
     },
     build:function(obj){
+        function FormatException(title,body){
+            return title+' : '+body;
+
+        }
         if(typeof obj == 'object') {
             var _core = generator.core = obj.core;
             for (var i in _core) {
@@ -49,24 +61,58 @@ var generator = {
                     _valid = $.inArray(_core[i].type, this.accept),
                     _generatorID = generator.makeGeneratorID(_core[i].type,i);
                 if(_core[i].template !== null && _core[i].template !== undefined){
-                    var _template = generator.getTemplate(_core[i].template);
-                        _template = _template.replace('{{object.parent.class}}',_core[i].class);
-                        _template = _template.replace('{{object.parent.content}}',_core[i].content);
-                        _template = _template.replace(/{{gen.id}}/g,_generatorID);
-                    if(_template.indexOf('@include')>-1){
-                        var inclusion = _template.split('@include:')[1].split('}}')[0],
-                            coreReference = inclusion.split('.')[1],
-                            toAdd = generator.getTemplate(inclusion),
-                            toRemove = '{{@include:'+inclusion+'}}';
-                        for(obj in generator.core){
-                            if(generator.core[obj].type == coreReference){
-                                toAdd = toAdd.replace('{{object.parent.class}}',generator.core[obj].class);
-                                toAdd = toAdd.replace('{{gen.id}}',generator.makeGeneratorID(generator.core[obj].type,obj));
+                    if(typeof generator.getTemplate(_core[i].template) == 'object'){
+                        /*
+                        we have an object so we know we're going to build a select
+                        or list item. This means we are expecting to see a parent
+                        item and a child object. We have to pull the template of the
+                        parent and the child and use them to iterate through the options
+                        in our json
+                         */
+                        if(typeof _core[i].options !== 'object'){
+                            throw new FormatException('Mismatch','The options value in the json is not an object');
+                        }else {
+                            var parent = '';
+                            var child = '';
+                            var baseObj = generator.getTemplate(_core[i].template);
+                            $.each(baseObj, function (key, value) {
+                                if (key == 'parent') {
+                                    parent = value;
+                                } else if (key == 'child') {
+                                    child = value;
+                                }
+                            });
+                            var item = '';
+                            for(var o in _core[i].options){
+                                item += child.replace('{{object.child.class}}',_core[i].options[o].class);
+                                item = item.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
+                                item = item.replace('{{object.child.content}}',_core[i].options[o].item);
                             }
+                            var result = parent.replace('{{@inject:[%each.child%]}',item);
+                            result = result.replace('{{object.parent.class}}',_core[i].class);
+                            result = result.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o));
+                            _structure += result;
                         }
-                        _template = _template.replace(toRemove,toAdd);
+                    }else {
+                        var _template = generator.getTemplate(_core[i].template);
+                        _template = _template.replace('{{object.parent.class}}', _core[i].class);
+                        _template = _template.replace('{{object.parent.content}}', _core[i].content);
+                        _template = _template.replace(/{{gen.id}}/g, _generatorID);
+                        if (_template.indexOf('@include') > -1) {
+                            var inclusion = _template.split('@include:')[1].split('}}')[0],
+                                coreReference = inclusion.split('.')[1],
+                                toAdd = generator.getTemplate(inclusion),
+                                toRemove = '{{@include:' + inclusion + '}}';
+                            for (obj in generator.core) {
+                                if (generator.core[obj].type == coreReference) {
+                                    toAdd = toAdd.replace('{{object.parent.class}}', generator.core[obj].class);
+                                    toAdd = toAdd.replace('{{gen.id}}', generator.makeGeneratorID(generator.core[obj].type, obj));
+                                }
+                            }
+                            _template = _template.replace(toRemove, toAdd);
+                        }
+                        _structure += _template;
                     }
-                    _structure += _template;
                 }else {
                     _structure += '<' + _core[i].type + ' ' + _generatorID;
                     _structure += _core[i].class !== '' && _core[i].class !== undefined ? ' class="' + _core[i].class + '"' : '';
@@ -120,13 +166,13 @@ var generator = {
             })
         }
     }
-};
+} || {};
 //new generator.init('data/demo.json'); // method using external JSON
 new generator.init(
     {
         "core": [{
-            "type": "button",
-            "template": null,
+            "type": "ul",
+            "template": "layout.list",
             "class": "boo",
             "id": "casas",
             "disabled": false,
@@ -142,9 +188,21 @@ new generator.init(
             "events": {
                 "click": "console.log('this')"
             },
+            "options":[
+                {
+                    "item":"sdfsdfsdf",
+                    "value":"",
+                    "class":""
+                },
+                {
+                    "item":"bloobaloo",
+                    "value":"sdfsdf",
+                    "class":""
+                }
+            ],
             "parent": "body"
         }, {
-            "type": "nav",
+            "type": "button",
             "template": null,
             "class": "boo",
             "id": "casas",
@@ -160,6 +218,9 @@ new generator.init(
             },
             "events": {
                 "click": "console.log('sdfsdfsdf')"
+            },
+            "options":{
+
             },
             "parent": "body"
         }]

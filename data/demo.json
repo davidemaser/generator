@@ -18,6 +18,9 @@
       "events": {
         "click": "console.log('this')"
       },
+      "options":{
+
+      },
       "parent": "body"
     },
     {
@@ -37,6 +40,9 @@
       },
       "events": {
         "click": "console.log('sdfsdfsdf')"
+      },
+      "options":{
+
       },
       "parent": "body"
     }
