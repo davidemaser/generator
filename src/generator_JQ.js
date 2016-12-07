@@ -4,27 +4,28 @@
 var generator = {
     accept : ['button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header'],
     nomenclature:{
-        generator:'generator-id="{{type}}-{{unit}}"'
+        generator:"generator-id=\"{{type}}-{{unit}}\"",
+        template:"generator.template"
     },
     template: {
         form:{
-            button:"<button {{gen.id}} class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
-            checkbox:"<input type=\"checkbox\" {{gen.id}} class=\"{{object.parent.class}}\">",
-            radiobutton:"<input type=\"radiobutton\" {{gen.id}} class=\"{{object.parent.class}}\">",
-            input:"<input type=\"text\" {{gen.id}} class=\"{{object.parent.class}}\" />",
-            textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\">{{object.parent.content}}</textarea>",
+            button:"<button {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{object.parent.content}}</button>",
+            checkbox:"<label for=\"{{object.parent.id}}\"><input id=\"{{object.parent.id}}\" type=\"checkbox\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}} {{object.parent.attributes}}>{{object.parent.content}}</label>",
+            radiobutton:"<input type=\"radiobutton\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>",
+            input:"<input type=\"text\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}} />",
+            textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{object.parent.content}}</textarea>",
             select:{
-                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}}>{{@inject:[%each.child%]}</select>",
+                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}} {{object.parent.attributes}}>{{@inject:[%each.child%]}</select>",
                 child : "<option {{gen.id}} value=\"{{object.child.value}}\">{{object.child.content}}</option>"
 
             }
         },
         layout: {
-            header: "<header {{gen.id}} class=\"{{object.parent.class}}\">{{@include:layout.nav}}</header>",
-            footer: "<footer {{gen.id}} class=\"{{object.parent.class}}\"></footer>",
-            nav: "<nav {{gen.id}} class=\"{{object.parent.class}}\"></nav>",
+            header: "<header {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{@include:layout.nav}}</header>",
+            footer: "<footer {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}></footer>",
+            nav: "<nav {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}></nav>",
             list: {
-                parent: "<ul {{gen.id}} class=\"{{object.parent.class}}\">{{@inject:[%each.child%]}</ul>",
+                parent: "<ul {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{@inject:[%each.child%]}</ul>",
                 child:"<li {{gen.id}} class=\"{{object.child.class}}\">{{object.child.content}}</li>"
 
             }
@@ -32,10 +33,10 @@ var generator = {
         core : {}
     },
     getTemplate:function(item){
-        var _string = 'generator.template';
+        var _string = this.nomenclature.template;
         if(item.indexOf('.')>-1){
             item = item.split('.');
-            for(i in item){
+            for(var i in item){
                 _string += '.' + item[i];
             }
         }else{
@@ -49,17 +50,30 @@ var generator = {
         var _string = this.nomenclature.generator;
         return _string.replace('{{type}}',type).replace('{{unit}}',unit);
     },
+    buildAttributes:function(obj){
+        /*
+        check if the object has attributes and return it in
+        a presentable format
+         */
+        var _string = '';
+        $.each(obj,function(key,value){
+            if(value !== '' && value !== undefined && value !== null) {
+                _string += key + '="' + value + '" ';
+            }
+        });
+        return _string;
+    },
     build:function(obj){
         function FormatException(title,body){
             return title+' : '+body;
-
         }
         if(typeof obj == 'object') {
             var _core = generator.core = obj.core;
             for (var i in _core) {
                 var _structure = '',
                     _valid = $.inArray(_core[i].type, this.accept),
-                    _generatorID = generator.makeGeneratorID(_core[i].type,i);
+                    _generatorID = generator.makeGeneratorID(_core[i].type,i),
+                    _attributes = generator.buildAttributes(_core[i].attributes);
                 if(_core[i].template !== null && _core[i].template !== undefined){
                     if(typeof generator.getTemplate(_core[i].template) == 'object'){
                         /*
@@ -85,13 +99,14 @@ var generator = {
                             var item = '';
                             for(var o in _core[i].options){
                                 item += child.replace('{{object.child.class}}',_core[i].options[o].class);
-                                item = item.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
+                                item = item.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
                                 item = item.replace('{{object.child.content}}',_core[i].options[o].item);
                                 item = item.replace('{{object.child.value}}',_core[i].options[o].value);
                             }
                             var result = parent.replace('{{@inject:[%each.child%]}',item);
                             result = result.replace('{{object.parent.class}}',_core[i].class);
-                            result = result.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o));
+                            result = result.replace('{{object.parent.attributes}}',_attributes);
+                            result = result.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i+'-'+o));
                             result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : result.replace(' {{object.parent.disabled}}','');
                             _structure += result;
                         }
@@ -100,6 +115,10 @@ var generator = {
                         _template = _template.replace('{{object.parent.class}}', _core[i].class);
                         _template = _template.replace('{{object.parent.content}}', _core[i].content);
                         _template = _template.replace(/{{gen.id}}/g, _generatorID);
+                        _template = _template.replace('{{object.parent.attributes}}',_attributes);
+                        _template = _template.replace(/{{object.parent.id}}/g,_core[i].id);
+                        _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? _template.replace('{{object.parent.disabled}}','disabled') : _template.replace(' {{object.parent.disabled}}','');
+
                         if (_template.indexOf('@include') > -1) {
                             var inclusion = _template.split('@include:')[1].split('}}')[0],
                                 coreReference = inclusion.split('.')[1],
@@ -108,7 +127,8 @@ var generator = {
                             for (obj in generator.core) {
                                 if (generator.core[obj].type == coreReference) {
                                     toAdd = toAdd.replace('{{object.parent.class}}', generator.core[obj].class);
-                                    toAdd = toAdd.replace('{{gen.id}}', generator.makeGeneratorID(generator.core[obj].type, obj));
+                                    toAdd = toAdd.replace(/{{object.parent.id}}/g,generator.core[obj].id);
+                                    toAdd = toAdd.replace(/{{gen.id}}/g, generator.makeGeneratorID(generator.core[obj].type, obj));
                                 }
                             }
                             _template = _template.replace(toRemove, toAdd);

@@ -1,14 +1,14 @@
 {
   "core": [
     {
-      "type": "select",
-      "template": "form.select",
+      "type": "checkbox",
+      "template": "form.checkbox",
       "class": "boo",
       "id": "casas",
-      "disabled": true,
+      "disabled": false,
       "attributes": {
-        "data-href": "",
-        "data-prop": ""
+        "data-href": "sdf",
+        "data-prop": "sdfsdfsdf"
       },
       "content": "Click Me",
       "style": {
@@ -34,7 +34,7 @@
     },
     {
       "type": "button",
-      "template": null,
+      "template": "form.button",
       "class": "boo",
       "id": "casas",
       "disabled": false,
