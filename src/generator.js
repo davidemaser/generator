@@ -1,5 +1,5 @@
 /**
- * Created by altitude on 06/12/16.
+ * Created by David Maser.
  */
 var generator = {
     dom : document,
