@@ -3,6 +3,22 @@
  */
 var generator = {
     accept : ['button','div','section','ul','li','nav','form','radio','checkbox','footer','header'],
+    templates: {
+        "form":{
+            "button":"<button class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
+            "checkbox":"",
+            "radiobutton":"",
+            "radiogroup":"",
+            "input":"<input type=\"text\" class=\"{{object.parent.class}}\" />",
+            "textarea":"<textarea class=\"{{object.parent.class}}\">class=\"{{object.parent.content}}\"</textarea>"
+        },
+        "layout":{
+            "header":"",
+            "footer":"",
+            "nav":"",
+            "list":"<ul class=\"{{object.parent.class}}\"><li class=\"{{object.child.class}}\">{{object.child.label}}</li></ul>"
+        }
+    },
     build:function(obj){
         if(typeof obj == 'object') {
             var _core = obj.core;
@@ -84,7 +100,8 @@ new generator.init('data/demo.json'); // method using external JSON
     "events":{
         "click":"console.log('this')"
     },
-    "parent":"body"
+    "parent":"body",
+    "template":null
 },{
         "type": "button",
         "class":"boo",
@@ -103,6 +120,7 @@ new generator.init('data/demo.json'); // method using external JSON
         "events":{
             "click":"console.log('sdfsdfsdf')"
         },
-        "parent":"body"
+        "parent":"body",
+        "template":null
     }]
 });*/

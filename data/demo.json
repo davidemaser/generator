@@ -17,7 +17,8 @@
       "events": {
         "click": "console.log('this')"
       },
-      "parent": "body"
+      "parent": "body",
+      "template":null
     },
     {
       "type": "button",
@@ -36,7 +37,8 @@
       "events": {
         "click": "console.log('sdfsdfsdf')"
       },
-      "parent": "body"
+      "parent": "body",
+      "template":null
     }
   ]
 }

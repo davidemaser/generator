@@ -97,7 +97,8 @@ new generator.init('data/demo.json'); // method using external JSON
     "events":{
         "click":"console.log('this')"
     },
-    "parent":"body"
+    "parent":"body",
+    "template":null
 },{
         "type": "button",
         "class":"boo",
@@ -115,6 +116,7 @@ new generator.init('data/demo.json'); // method using external JSON
         "events":{
             "click":"console.log('sdfsdfsdf')"
         },
-        "parent":"body"
+        "parent":"body",
+        "template":null
     }]
 });*/
