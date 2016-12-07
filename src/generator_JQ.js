@@ -2,7 +2,7 @@
  * Created by David Maser.
  */
 var generator = {
-    accept : ['button','div','section','ul','li','nav','form','radio','checkbox','footer','header'],
+    accept : ['button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header'],
     nomenclature:{
         generator:'generator-id="{{type}}-{{unit}}"'
     },
@@ -14,8 +14,8 @@ var generator = {
             input:"<input type=\"text\" {{gen.id}} class=\"{{object.parent.class}}\" />",
             textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\">{{object.parent.content}}</textarea>",
             select:{
-                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\">{{@inject:[%each.child%]}</select>",
-                child : "<option {{gen.id}}>{{object.child.content}}</option>"
+                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}}>{{@inject:[%each.child%]}</select>",
+                child : "<option {{gen.id}} value=\"{{object.child.value}}\">{{object.child.content}}</option>"
 
             }
         },
@@ -87,10 +87,12 @@ var generator = {
                                 item += child.replace('{{object.child.class}}',_core[i].options[o].class);
                                 item = item.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
                                 item = item.replace('{{object.child.content}}',_core[i].options[o].item);
+                                item = item.replace('{{object.child.value}}',_core[i].options[o].value);
                             }
                             var result = parent.replace('{{@inject:[%each.child%]}',item);
                             result = result.replace('{{object.parent.class}}',_core[i].class);
                             result = result.replace('{{gen.id}}',generator.makeGeneratorID(_core[i].type,i+'-'+o));
+                            result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : result.replace(' {{object.parent.disabled}}','');
                             _structure += result;
                         }
                     }else {
@@ -167,8 +169,8 @@ var generator = {
         }
     }
 } || {};
-//new generator.init('data/demo.json'); // method using external JSON
-new generator.init(
+new generator.init('data/demo.json'); // method using external JSON
+/*new generator.init(
     {
         "core": [{
             "type": "ul",
@@ -225,3 +227,4 @@ new generator.init(
             "parent": "body"
         }]
     });
+    */

@@ -1,11 +1,11 @@
 {
   "core": [
     {
-      "type": "button",
-      "template": "form.button",
+      "type": "select",
+      "template": "form.select",
       "class": "boo",
       "id": "casas",
-      "disabled": false,
+      "disabled": true,
       "attributes": {
         "data-href": "",
         "data-prop": ""
@@ -18,14 +18,23 @@
       "events": {
         "click": "console.log('this')"
       },
-      "options":{
-
-      },
+      "options": [
+        {
+          "item": "sdfsdfsdf",
+          "value": "",
+          "class": ""
+        },
+        {
+          "item": "bloobaloo",
+          "value": "sdfsdf",
+          "class": ""
+        }
+      ],
       "parent": "body"
     },
     {
       "type": "button",
-      "template":null,
+      "template": null,
       "class": "boo",
       "id": "casas",
       "disabled": false,
@@ -41,8 +50,7 @@
       "events": {
         "click": "console.log('sdfsdfsdf')"
       },
-      "options":{
-
+      "options": {
       },
       "parent": "body"
     }
