@@ -1,0 +1,42 @@
+{
+  "core": [
+    {
+      "type": "button",
+      "class": "boo",
+      "id": "casas",
+      "disabled": false,
+      "attributes": {
+        "data-href": "",
+        "data-prop": ""
+      },
+      "content": "Click Me",
+      "style": {
+        "background": "#fff",
+        "border-right": "1px solid #000"
+      },
+      "events": {
+        "click": "console.log('this')"
+      },
+      "parent": "body"
+    },
+    {
+      "type": "button",
+      "class": "boo",
+      "id": "casas",
+      "disabled": false,
+      "attributes": {
+        "data-href": "",
+        "data-prop": ""
+      },
+      "content": "Don't Click Me",
+      "style": {
+        "background": "#fff",
+        "border-right": "1px solid #000"
+      },
+      "events": {
+        "click": "console.log('sdfsdfsdf')"
+      },
+      "parent": "body"
+    }
+  ]
+}
