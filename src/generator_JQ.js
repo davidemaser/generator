@@ -24,21 +24,21 @@ var generator = {
         core : {}
     },
     getTemplate:function(item){
-        var string = 'generator.template';
+        var _string = 'generator.template';
         if(item.indexOf('.')>-1){
             item = item.split('.');
             for(i in item){
-                string += '.' + item[i];
+                _string += '.' + item[i];
             }
         }else{
-            string += '.' + item;
+            _string += '.' + item;
         }
-        if(eval(string) !== undefined) {
-            return eval(string);
+        if(eval(_string) !== undefined) {
+            return eval(_string);
         }
     },
     makeGeneratorID:function(type,unit){
-        var _string = generator.nomenclature.generator;
+        var _string = this.nomenclature.generator;
         return _string.replace('{{type}}',type).replace('{{unit}}',unit);
     },
     build:function(obj){
@@ -46,7 +46,7 @@ var generator = {
             var _core = generator.core = obj.core;
             for (var i in _core) {
                 var _structure = '',
-                    _valid = $.inArray(_core[i].type, generator.accept),
+                    _valid = $.inArray(_core[i].type, this.accept),
                     _generatorID = generator.makeGeneratorID(_core[i].type,i);
                 if(_core[i].template !== null && _core[i].template !== undefined){
                     var _template = generator.getTemplate(_core[i].template);
@@ -103,7 +103,7 @@ var generator = {
             }
         }
     },
-    init:function(src,template){
+    init:function(src){
         if(typeof src == 'object'){
             generator.build(src)
         }else{
