@@ -7,8 +7,8 @@
       "id": "casas",
       "disabled": false,
       "attributes": {
-        "data-href": "sdf",
-        "data-prop": "sdfsdfsdf"
+        "data-href": "my-link",
+        "data-prop": "negative"
       },
       "content": "Click Me",
       "style": {

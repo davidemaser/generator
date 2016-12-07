@@ -1,5 +1,12 @@
 /**
  * Created by David Maser.
+ * Refer to the license file here
+ * https://github.com/davidemaser/generator/blob/master/LICENSE
+ * before using or sharing this code
+ *
+ * If you would like to collaborate on this project, visit
+ * https://github.com/davidemaser/generator and make a pull
+ * request
  */
 var generator = {
     accept : ['button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header'],
