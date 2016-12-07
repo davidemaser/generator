@@ -65,8 +65,8 @@ var generator = {
             generator.build(src)
         }else{
             var data = new XMLHttpRequest();
-            data.overrideMimeType("application/json");
-            data.open('GET', src, true); // Replace 'my_data' with the path to your file
+            data.overrideMimeType('application/json');
+            data.open('GET', src, true);
             data.onreadystatechange = function () {
                 if (data.readyState == 4 && data.status == 200) {
                     generator.build(JSON.parse(data.responseText));
