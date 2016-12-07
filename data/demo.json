@@ -2,6 +2,7 @@
   "core": [
     {
       "type": "button",
+      "template":null,
       "class": "boo",
       "id": "casas",
       "disabled": false,
@@ -17,11 +18,11 @@
       "events": {
         "click": "console.log('this')"
       },
-      "parent": "body",
-      "template":null
+      "parent": "body"
     },
     {
       "type": "button",
+      "template":null,
       "class": "boo",
       "id": "casas",
       "disabled": false,
@@ -37,8 +38,7 @@
       "events": {
         "click": "console.log('sdfsdfsdf')"
       },
-      "parent": "body",
-      "template":null
+      "parent": "body"
     }
   ]
 }

@@ -84,6 +84,7 @@ new generator.init('data/demo.json'); // method using external JSON
 {
     "core": [{
     "type": "button",
+    "template":null,
     "class":"boo",
     "id":"first",
     "disabled":false,
@@ -100,10 +101,10 @@ new generator.init('data/demo.json'); // method using external JSON
     "events":{
         "click":"console.log('this')"
     },
-    "parent":"body",
-    "template":null
+    "parent":"body"
 },{
         "type": "button",
+        "template":null,
         "class":"boo",
         "id":"second",
         "disabled":false,
@@ -120,7 +121,38 @@ new generator.init('data/demo.json'); // method using external JSON
         "events":{
             "click":"console.log('sdfsdfsdf')"
         },
-        "parent":"body",
-        "template":null
+        "p/*new generator.build(
+{
+    "core": [{
+    "type": "button",
+    "template":null,
+    "class":"boo",
+    "id":"first",
+    "disabled":false,
+    "attributes":{
+        "data-href":"",
+        "data-prop":""
+    },
+    "content":"Click Me",
+    "style":{
+        "background":"#fff",
+        "border-right":"1px solid #000",
+        "color":"#000"
+    },
+    "events":{
+        "click":"console.log('this')"
+    },
+    "parent":"body"
+},{
+        "type": "button",
+        "template":null,
+        "class":"boo",
+        "id":"second",
+        "disabled":false,
+        "attributes":{
+            "data-href":"",
+            "data-prop":""
+        },
+        "carent":"body"
     }]
 });*/

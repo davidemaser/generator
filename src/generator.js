@@ -4,6 +4,22 @@
 var generator = {
     dom : document,
     accept : ['button','div','section','ul','li','nav','form','radio','checkbox','footer','header'],
+    templates: {
+        "form":{
+            "button":"<button class=\"{{object.parent.class}}\">{{object.parent.content}}</button>",
+            "checkbox":"",
+            "radiobutton":"",
+            "radiogroup":"",
+            "input":"<input type=\"text\" class=\"{{object.parent.class}}\" />",
+            "textarea":"<textarea class=\"{{object.parent.class}}\">class=\"{{object.parent.content}}\"</textarea>"
+        },
+        "layout":{
+            "header":"",
+            "footer":"",
+            "nav":"",
+            "list":"<ul class=\"{{object.parent.class}}\"><li class=\"{{object.child.class}}\">{{object.child.label}}</li></ul>"
+        }
+    },
     build:function(obj){
         function testParentType(s){
             if(s.indexOf('.')>-1){
@@ -82,6 +98,7 @@ new generator.init('data/demo.json'); // method using external JSON
 {
     "core": [{
     "type": "button",
+    "template":null,
     "class":"boo",
     "id":"casas",
     "disabled":false,
@@ -97,10 +114,10 @@ new generator.init('data/demo.json'); // method using external JSON
     "events":{
         "click":"console.log('this')"
     },
-    "parent":"body",
-    "template":null
+    "parent":"body"
 },{
         "type": "button",
+        "template":null,
         "class":"boo",
         "id":"casas",
         "disabled":false,
@@ -116,7 +133,6 @@ new generator.init('data/demo.json'); // method using external JSON
         "events":{
             "click":"console.log('sdfsdfsdf')"
         },
-        "parent":"body",
-        "template":null
+        "parent":"body"
     }]
 });*/
