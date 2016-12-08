@@ -55,6 +55,11 @@ var generator = {
     },
     core : {},
     getTemplate:function(item,type){
+        /*
+        gets the type of template object from the JSON and
+        extracts the template string from the template
+        object
+         */
         switch(type){
             case 'object':
                 var _string = this.nomenclature.template;
@@ -80,10 +85,18 @@ var generator = {
     },
     helpers:{
         makeGeneratorID:function(type,unit){
+            /*
+             returns a unique generator id. Each object
+             has a generator ID.
+             */
             var _string = generator.nomenclature.generator;
             return _string.replace('{{type}}',type).replace('{{unit}}',unit);
         },
         makeObjectClass:function(val){
+            /*
+             check if the object has an CLASS and returns it in
+             a presentable format
+             */
             if(val !== null && val !== undefined && val !== '') {
                 return 'class="' + val + '"';
             }else{
@@ -91,6 +104,10 @@ var generator = {
             }
         },
         makeObjectID:function(val){
+            /*
+             check if the object has an ID and returns it in
+             a presentable format
+             */
             if(val !== null && val !== undefined && val !== '') {
                 return 'id="' + val + '"';
             }else{
@@ -98,6 +115,10 @@ var generator = {
             }
         },
         makeObjectValue:function(val){
+            /*
+             check if the object has a value and returns it in
+             a presentable format
+             */
             if(val !== null && val !== undefined && val !== '') {
                 return 'value="' + val + '"';
             }else{
@@ -105,6 +126,11 @@ var generator = {
             }
         },
         makeObjectType:function(val){
+            /*
+             returns the object type in a generator-type
+             string. generator-type is useful for styling
+             and event handling
+             */
             if(val !== null && val !== undefined && val !== '') {
                 return 'generator-type="' + val + '"';
             }else{
@@ -113,7 +139,7 @@ var generator = {
         },
         makeAttributes:function(obj){
             /*
-             check if the object has attributes and return it in
+             check if the object has attributes and returns it in
              a presentable format
              */
             var _string = '';
@@ -125,6 +151,13 @@ var generator = {
             return _string;
         },
         makeInlineStyle:function(obj,parent){
+            /*
+            instead of using inline styles, the generator
+            object's CSS attributes can be written to a
+            style attribute that is appended to the head.
+            It is also possible to include an external CSS
+            file :: see LoadStyleSheet in the generator core
+             */
             var _styleString = '<style type="text/css">\n';
             if(typeof obj == 'object'){
                 _styleString += '#'+parent+'{\n';
@@ -132,24 +165,36 @@ var generator = {
                     if(o !== 'type' && o !== 'url')
                         _styleString += o+':'+obj[o]+';\n';
                 }
-                _styleString += '}\n'
+                _styleString += '}\n';
                 _styleString += '</style>';
             }
             $(_styleString).appendTo('head');
 
         },
         makeEventHandlers:function(key,id,val){
+            /*
+            binds an event handler to a page object
+            using the objects generator-id
+             */
             $('body').on(key, '[' + id + ']', function () {
                 eval(val);
             });
         }
     },
     build:function(obj){
-        function FormatException(title,body){
-            return title+' : '+body;
-        }
+        /*
+        main function builds each component with the data in the
+        json or using the json data and the template object together.
+        Each object is assigned a unique identifier to which event
+        handlers are attached if the user has specified them.
+         */
         function LoadStyleSheet(link){
             $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
+        }
+        function LoadScript(link){
+            $.getScript(link, function() {
+                script.init();
+            });
         }
         if(typeof obj == 'object') {
             var _core = generator.core = obj.core;
@@ -157,7 +202,7 @@ var generator = {
                 var _structure = '';
                 if(typeof generator.accept == 'object'){
                     var _validItems = [];
-                    for(a in generator.accept){
+                    for(var a in generator.accept){
                         _validItems = _validItems.concat(generator.accept[a]);
                     }
                 }else{
@@ -171,7 +216,6 @@ var generator = {
                 var _valid = $.inArray(_checkAgainst,_validItems),
                     _generatorID = generator.helpers.makeGeneratorID(_core[i].type,i),
                     _attributes = generator.helpers.makeAttributes(_core[i].attributes);
-                console.log(_valid);
                 if(_core[i].template !== null && _core[i].template !== undefined){
                     if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
                         var _styleString = '',
@@ -188,42 +232,47 @@ var generator = {
                     }
                     if(typeof generator.getTemplate(_core[i].template,_core[i].type) == 'object'){
                         /*
-                        we have an object so we know we're going to build a select
-                        or list item. This means we are expecting to see a parent
-                        item and a child object. We have to pull the template of the
+                        we have an object so we know we're going to build a multi-level
+                        item. This means we are expecting to see a parent item and one or
+                        many child objects. We have to pull the template of the
                         parent and the child and use them to iterate through the options
                         in our json
                          */
                         if(typeof _core[i].options !== 'object'){
-                            throw new FormatException('Mismatch','The options value in the json is not an object');
+                            /*
+                            since we are calling an object formatted template
+                            let's make sure our options object is indeed an
+                            object. If it's not, alert the user.
+                             */
+                            throw new generator.formatException('Mismatch','The options value in the json is not an object');
                         }else {
-                            var parent = '';
-                            var child = '';
-                            var baseObj = generator.getTemplate(_core[i].template,_core[i].type);
-                            $.each(baseObj, function (key, value) {
+                            var _parent = '',
+                                _child = '',
+                                _baseObj = generator.getTemplate(_core[i].template,_core[i].type);
+                            $.each(_baseObj, function (key, value) {
                                 if (key == 'parent') {
-                                    parent = value;
+                                    _parent = value;
                                 } else if (key == 'child') {
-                                    child = value;
+                                    _child = value;
                                 }
                             });
-                            var item = '';
+                            var _item = '';
                             for(var o in _core[i].options){
-                                item += child.replace('{{core.class}}',_core[i].options[o].class !== null ? generator.helpers.makeObjectClass(_core[i].options[o].class) : '');
-                                item = item.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
-                                item = item.replace('{{object.child.content}}',_core[i].options[o].item);
-                                item = item.replace('{{core.value}}',generator.helpers.makeObjectValue(_core[i].options[o].value));
-                                item = item.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template+'.sub'));
+                                _item += _child.replace('{{core.class}}',_core[i].options[o].class !== null ? generator.helpers.makeObjectClass(_core[i].options[o].class) : '');
+                                _item = _item.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
+                                _item = _item.replace('{{object.child.content}}',_core[i].options[o].item);
+                                _item = _item.replace('{{core.value}}',generator.helpers.makeObjectValue(_core[i].options[o].value));
+                                _item = _item.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template+'.sub'));
                             }
-                            var result = parent.replace('{{@inject:[%each.child%]}',item);
-                            result = result.replace('{{core.id}}',_core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
-                            result = result.replace('{{core.class}}',_core[i].id !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
-                            result = result.replace('{{core.attributes}}',_attributes);
-                            result = result.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template));
-                            result = result.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i));
-                            result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : result.replace(' {{object.parent.disabled}}','');
-                            result = _styleString !== '' && _styleString !== undefined ? result.replace('{{gen.style}}','style="' + _styleString + '"') : result.replace('{{gen.style}}','');
-                            _structure += result;
+                            var _result = _parent.replace('{{@inject:[%each.child%]}',_item);
+                            _result = _result.replace('{{core.id}}',_core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
+                            _result = _result.replace('{{core.class}}',_core[i].id !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
+                            _result = _result.replace('{{core.attributes}}',_attributes);
+                            _result = _result.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template));
+                            _result = _result.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i));
+                            _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : _result.replace(' {{object.parent.disabled}}','');
+                            _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}','style="' + _styleString + '"') : _result.replace('{{gen.style}}','');
+                            _structure += _result;
                         }
                     }else {
                         var _template = generator.getTemplate(_core[i].template,_core[i].type);
@@ -237,17 +286,17 @@ var generator = {
                         _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? _template.replace('{{object.parent.disabled}}','disabled') : _template.replace(' {{object.parent.disabled}}','');
                         _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}','style="' + _styleString + '"') : _template.replace('{{gen.style}}','')
                         if (_template.indexOf('@include') > -1) {
-                            var inclusion = _template.split('@include:')[1].split('}}')[0],
-                                coreReference = inclusion.split('.')[1],
-                                toAdd = generator.getTemplate(inclusion),
-                                toRemove = '{{@include:' + inclusion + '}}';
+                            var _inclusion = _template.split('@include:')[1].split('}}')[0],
+                                _coreReference = _inclusion.split('.')[1],
+                                _toAdd = generator.getTemplate(_inclusion),
+                                _toRemove = '{{@include:' + _inclusion + '}}';
                             for (obj in generator.core) {
-                                if (generator.core[obj].type == coreReference) {
-                                    toAdd = toAdd.replace(/{{object.parent.id}}/g,generator.core[obj].id);
-                                    toAdd = toAdd.replace(/{{gen.id}}/g, generator.helpers.makeGeneratorID(generator.core[obj].type, obj));
+                                if (generator.core[obj].type == _coreReference) {
+                                    _toAdd = _toAdd.replace(/{{object.parent.id}}/g,generator.core[obj].id);
+                                    _toAdd = _toAdd.replace(/{{gen.id}}/g, generator.helpers.makeGeneratorID(generator.core[obj].type, obj));
                                 }
                             }
-                            _template = _template.replace(toRemove, toAdd);
+                            _template = _template.replace(_toRemove, _toAdd);
                         }
                         _structure += _template;
                     }
@@ -297,8 +346,11 @@ var generator = {
                 error:function(e){
                     console.log('The following error occured '+e);
                 }
-            })
+            });
         }
+    },
+    formatException: function (title, body) {
+        return title + ' : ' + body;
     }
 } || {};
 new generator.init('data/demo.json'); // method using external JSON
