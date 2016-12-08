@@ -12,7 +12,8 @@ var generator = {
     accept : {
         object:['object','button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header','textarea'],
         component:['box','banner','gutter','card','gallery','hero'],
-        widget:['clock']
+        widget:['clock'],
+        extensions:{}
     },
     nomenclature:{
         generator:"generator-id=\"{{type}}-{{unit}}\"",
@@ -53,6 +54,7 @@ var generator = {
         card:"",
         badge:""
     },
+    extensions: {},
     core : {},
     getTemplate:function(item,type){
         /*
@@ -330,6 +332,48 @@ var generator = {
                         });
                     }
             }
+        }
+    },
+    extend:function(obj){
+        var _extensionsLength = generator.extensions.length;
+        if(typeof obj == 'object'){
+            var objStructure = '',
+                dup = true;
+            $.each(obj,function(key,value){
+                objStructure += key == 'name' ? value+':{\n' : '';
+                objStructure += key == 'identifier' ? value+':' : '';
+                if(key == 'code'){
+                    objStructure += '"'+value+'"';
+                    dup = false;
+                }else{
+                    if(key == 'parent'){
+                        objStructure += '{\n';
+                        objStructure += key+': "'+value+'",\n';
+                    }
+                    if(key == 'child'){
+                        objStructure += key+': "'+value+'"';
+                    }
+                }
+            });
+            objStructure += '\n}';
+            if(dup == true){
+                objStructure += '\n}';
+            }
+            if(_extensionsLength > 0){
+                objStructure += ',';
+            }
+            console.log(objStructure);
+            generator.accept.extensions += objStructure;
+            generator.extensions += objStructure;
+            /*var extension = {
+                name:"name",
+                identifier:"blocks",
+                parent:"<div {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</div>",
+                child:"<div></div>",
+                acceptEvents:true
+            }*/
+        }else{
+            throw new generator.formatException('Type mismatch','An object was expected')
         }
     },
     init:function(src){
