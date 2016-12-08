@@ -9,38 +9,63 @@
  * request
  */
 var generator = {
-    accept : ['button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header'],
+    accept : {
+        object:['object','button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header','textarea'],
+        component:['box','banner','gutter','card','gallery','hero'],
+        widget:['clock']
+    },
     nomenclature:{
         generator:"generator-id=\"{{type}}-{{unit}}\"",
-        template:"generator.template"
+        template:"generator.template",
+        component:"generator.component",
+        widget:"generator.widget"
     },
     template: {
         form:{
-            button:"<button {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{object.parent.content}}</button>",
-            checkbox:"<label for=\"{{object.parent.id}}\"><input id=\"{{object.parent.id}}\" type=\"checkbox\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}} {{object.parent.attributes}}>{{object.parent.content}}</label>",
-            radiobutton:"<input type=\"radiobutton\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>",
-            input:"<input type=\"text\" {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}} />",
-            textarea:"<textarea {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{object.parent.content}}</textarea>",
+            button:"<button {{core.id}} {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{object.parent.content}}</button>",
+            checkbox:"<label for=\"{{object.parent.id}}\"><input {{core.id}} type=\"checkbox\" {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}}>{{object.parent.content}}</label>",
+            radiobutton:"<input type=\"radiobutton\" {{gen.id}} {{core.class}} {{core.attributes}}>",
+            input:"<input type=\"text\" {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} />",
+            textarea:"<textarea {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{object.parent.content}}</textarea>",
             select:{
-                parent:"<select {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.disabled}} {{object.parent.attributes}}>{{@inject:[%each.child%]}</select>",
-                child : "<option {{gen.id}} value=\"{{object.child.value}}\">{{object.child.content}}</option>"
+                parent:"<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</select>",
+                child : "<option {{gen.id}} {{gen.type}} {{core.value}}>{{object.child.content}}</option>"
 
             }
         },
         layout: {
-            header: "<header {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{@include:layout.nav}}</header>",
-            footer: "<footer {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}></footer>",
-            nav: "<nav {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}></nav>",
+            header: "<header {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{@include:layout.nav}}</header>",
+            footer: "<footer {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></footer>",
+            nav: "<nav {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></nav>",
             list: {
-                parent: "<ul {{gen.id}} class=\"{{object.parent.class}}\" {{object.parent.attributes}}>{{@inject:[%each.child%]}</ul>",
-                child:"<li {{gen.id}} class=\"{{object.child.class}}\">{{object.child.content}}</li>"
+                parent: "<ul {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</ul>",
+                child:"<li {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</li>"
 
             }
-        },
-        core : {}
+        }
     },
-    getTemplate:function(item){
-        var _string = this.nomenclature.template;
+    component: {
+        banner: {
+            parent:"<section {{core.id}} {{gen.id}} {{gen.type}} {{core.class}}>{{@inject:[%each.child%]}</section>",
+            child:"<div {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</div>"
+        },
+        gutter:"",
+        card:"",
+        badge:""
+    },
+    core : {},
+    getTemplate:function(item,type){
+        switch(type){
+            case 'object':
+                var _string = this.nomenclature.template;
+                break;
+            case 'component':
+                _string = this.nomenclature.component;
+                break;
+            case 'widget':
+                _string = this.nomenclature.widget;
+                break;
+        }
         if(item.indexOf('.')>-1){
             item = item.split('.');
             for(var i in item){
@@ -57,7 +82,35 @@ var generator = {
         var _string = this.nomenclature.generator;
         return _string.replace('{{type}}',type).replace('{{unit}}',unit);
     },
-    buildAttributes:function(obj){
+    makeObjectClass:function(val){
+        if(val !== null && val !== undefined && val !== '') {
+            return 'class="' + val + '"';
+        }else{
+            return '';
+        }
+    },
+    makeObjectID:function(val){
+        if(val !== null && val !== undefined && val !== '') {
+            return 'id="' + val + '"';
+        }else{
+            return '';
+        }
+    },
+    makeObjectValue:function(val){
+        if(val !== null && val !== undefined && val !== '') {
+            return 'value="' + val + '"';
+        }else{
+            return '';
+        }
+    }, 
+    makeObjectType:function(val){
+        if(val !== null && val !== undefined && val !== '') {
+            return 'generator-type="' + val + '"';
+        }else{
+            return '';
+        }
+    },
+    makeAttributes:function(obj){
         /*
         check if the object has attributes and return it in
         a presentable format
@@ -70,19 +123,68 @@ var generator = {
         });
         return _string;
     },
+    makeInlineStyle:function(obj,parent){
+        var _styleString = '<style type="text/css">\n';
+        if(typeof obj == 'object'){
+            _styleString += '#'+parent+'{\n';
+            for(var o in obj){
+                if(o !== 'type' && o !== 'url')
+                    _styleString += o+':'+obj[o]+';\n';
+            }
+            _styleString += '}\n'
+        _styleString += '</style>';
+        }
+        $(_styleString).appendTo('head');
+
+    },
+    makeEventHandlers:function(key,id,val){
+        $('body').on(key, '[' + id + ']', function () {
+            eval(val);
+        });
+    },
     build:function(obj){
         function FormatException(title,body){
             return title+' : '+body;
         }
+        function LoadStyleSheet(link){
+            $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
+        }
         if(typeof obj == 'object') {
             var _core = generator.core = obj.core;
             for (var i in _core) {
-                var _structure = '',
-                    _valid = $.inArray(_core[i].type, this.accept),
+                var _structure = '';
+                if(typeof generator.accept == 'object'){
+                    var _validItems = [];
+                    for(a in generator.accept){
+                        _validItems = _validItems.concat(generator.accept[a]);
+                    }
+                }else{
+                    _validItems = generator.accept;
+                }
+                if(_core[i].type == 'component'){
+                    var _checkAgainst = _core[i].template;
+                }else{
+                    _checkAgainst = _core[i].type;
+                }
+                var _valid = $.inArray(_checkAgainst,_validItems),
                     _generatorID = generator.makeGeneratorID(_core[i].type,i),
-                    _attributes = generator.buildAttributes(_core[i].attributes);
+                    _attributes = generator.makeAttributes(_core[i].attributes);
+                console.log(_valid);
                 if(_core[i].template !== null && _core[i].template !== undefined){
-                    if(typeof generator.getTemplate(_core[i].template) == 'object'){
+                    if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
+                        var _styleString = '',
+                            _styleArray = [];
+                        $.each(_core[i].style, function (key, value) {
+                            if(key == 'type' && value == 'file'){
+                                LoadStyleSheet(_core[i].style['url']);
+                            }else if(key == 'type' && value == 'inline'){
+                                generator.makeInlineStyle(_core[i].style,_core[i].id);
+                            }else {
+                                _styleString += key + ':' + value + ';';
+                            }
+                        });
+                    }
+                    if(typeof generator.getTemplate(_core[i].template,_core[i].type) == 'object'){
                         /*
                         we have an object so we know we're going to build a select
                         or list item. This means we are expecting to see a parent
@@ -95,7 +197,7 @@ var generator = {
                         }else {
                             var parent = '';
                             var child = '';
-                            var baseObj = generator.getTemplate(_core[i].template);
+                            var baseObj = generator.getTemplate(_core[i].template,_core[i].type);
                             $.each(baseObj, function (key, value) {
                                 if (key == 'parent') {
                                     parent = value;
@@ -105,27 +207,33 @@ var generator = {
                             });
                             var item = '';
                             for(var o in _core[i].options){
-                                item += child.replace('{{object.child.class}}',_core[i].options[o].class);
+                                item += child.replace('{{core.class}}',_core[i].options[o].class !== null ? generator.makeObjectClass(_core[i].options[o].class) : '');
                                 item = item.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
                                 item = item.replace('{{object.child.content}}',_core[i].options[o].item);
-                                item = item.replace('{{object.child.value}}',_core[i].options[o].value);
+                                item = item.replace('{{core.value}}',generator.makeObjectValue(_core[i].options[o].value));
+                                item = item.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template+'.sub'));
                             }
                             var result = parent.replace('{{@inject:[%each.child%]}',item);
-                            result = result.replace('{{object.parent.class}}',_core[i].class);
-                            result = result.replace('{{object.parent.attributes}}',_attributes);
-                            result = result.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i+'-'+o));
+                            result = result.replace('{{core.id}}',_core[i].id !== null ? generator.makeObjectID(_core[i].id) : '');
+                            result = result.replace('{{core.class}}',_core[i].id !== null ? generator.makeObjectClass(_core[i].class) : '');
+                            result = result.replace('{{core.attributes}}',_attributes);
+                            result = result.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template));
+                            result = result.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i));
                             result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : result.replace(' {{object.parent.disabled}}','');
+                            result = _styleString !== '' && _styleString !== undefined ? result.replace('{{gen.style}}','style="' + _styleString + '"') : result.replace('{{gen.style}}','');
                             _structure += result;
                         }
                     }else {
-                        var _template = generator.getTemplate(_core[i].template);
-                        _template = _template.replace('{{object.parent.class}}', _core[i].class);
+                        var _template = generator.getTemplate(_core[i].template,_core[i].type);
                         _template = _template.replace('{{object.parent.content}}', _core[i].content);
                         _template = _template.replace(/{{gen.id}}/g, _generatorID);
-                        _template = _template.replace('{{object.parent.attributes}}',_attributes);
+                        _template = _template.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template));
+                        _template = _template.replace('{{core.attributes}}',_attributes);
                         _template = _template.replace(/{{object.parent.id}}/g,_core[i].id);
+                        _template = _template.replace('{{core.id}}',_core[i].id !== null ? generator.makeObjectID(_core[i].id) : '');
+                        _template = _template.replace('{{core.class}}',_core[i].class !== null ? generator.makeObjectClass(_core[i].class) : '');
                         _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? _template.replace('{{object.parent.disabled}}','disabled') : _template.replace(' {{object.parent.disabled}}','');
-
+                        _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}','style="' + _styleString + '"') : _template.replace('{{gen.style}}','')
                         if (_template.indexOf('@include') > -1) {
                             var inclusion = _template.split('@include:')[1].split('}}')[0],
                                 coreReference = inclusion.split('.')[1],
@@ -133,7 +241,6 @@ var generator = {
                                 toRemove = '{{@include:' + inclusion + '}}';
                             for (obj in generator.core) {
                                 if (generator.core[obj].type == coreReference) {
-                                    toAdd = toAdd.replace('{{object.parent.class}}', generator.core[obj].class);
                                     toAdd = toAdd.replace(/{{object.parent.id}}/g,generator.core[obj].id);
                                     toAdd = toAdd.replace(/{{gen.id}}/g, generator.makeGeneratorID(generator.core[obj].type, obj));
                                 }
@@ -155,11 +262,9 @@ var generator = {
                         });
                     }
                     if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                        var _styleString = '';
+                        _styleString = '';
                         $.each(_core[i].style, function (key, value) {
-                            if (_core[i].style !== '' && _core[i].style !== undefined) {
                                 _styleString += key + ':' + value + ';';
-                            }
                         });
                         _structure += ' style="' + _styleString + '"';
                     }
@@ -170,9 +275,7 @@ var generator = {
                     if (_valid > -1) {
                         $(_core[i].parent).append(_structure);
                         $.each(_core[i].events, function (key, value) {
-                            $('body').on(key, '[' + _generatorID + ']', function () {
-                                eval(value);
-                            });
+                            generator.makeEventHandlers(key,_generatorID,value);
                         });
                     }
             }

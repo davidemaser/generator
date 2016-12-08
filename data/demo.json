@@ -1,8 +1,8 @@
 {
   "core": [
     {
-      "type": "checkbox",
-      "template": "form.checkbox",
+      "type": "object",
+      "template": "form.select",
       "class": "boo",
       "id": "casas",
       "disabled": false,
@@ -33,7 +33,18 @@
       "parent": "body"
     },
     {
-      "type": "button",
+      "type":"object",
+      "template":"form.textarea",
+      "id":"formText",
+      "content":"default text",
+      "attributes": {
+        "rows": 10,
+        "cols": 10
+      },
+      "parent": "body"
+    },
+    {
+      "type": "object",
       "template": "form.button",
       "class": "boo",
       "id": "casas",
@@ -43,15 +54,45 @@
         "data-prop": ""
       },
       "content": "Don't Click Me",
-      "style": {
-        "background": "#fff",
-        "border-right": "1px solid #000"
-      },
+      "style": null,
       "events": {
         "click": "console.log('sdfsdfsdf')"
       },
       "options": {
       },
+      "parent": "body"
+    },
+    {
+      "type": "component",
+      "template": "banner",
+      "class": null,
+      "id": "casas",
+      "disabled": false,
+      "attributes": {
+        "data-href": "",
+        "data-prop": ""
+      },
+      "content": "Don't Click Me",
+      "style": {
+        "type":"inline",
+        "background": "#fff",
+        "border-right": "1px solid #000"
+      },
+      "events": {
+        "click": "alert('bam bam')"
+      },
+      "options": [
+        {
+          "item": "sdfsdfsdf",
+          "value": "",
+          "class": "this"
+        },
+        {
+          "item": "bloobaloo",
+          "value": "sdfsdf",
+          "class": ""
+        }
+      ],
       "parent": "body"
     }
   ]
