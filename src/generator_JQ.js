@@ -78,69 +78,71 @@ var generator = {
             return eval(_string);
         }
     },
-    makeGeneratorID:function(type,unit){
-        var _string = this.nomenclature.generator;
-        return _string.replace('{{type}}',type).replace('{{unit}}',unit);
-    },
-    makeObjectClass:function(val){
-        if(val !== null && val !== undefined && val !== '') {
-            return 'class="' + val + '"';
-        }else{
-            return '';
-        }
-    },
-    makeObjectID:function(val){
-        if(val !== null && val !== undefined && val !== '') {
-            return 'id="' + val + '"';
-        }else{
-            return '';
-        }
-    },
-    makeObjectValue:function(val){
-        if(val !== null && val !== undefined && val !== '') {
-            return 'value="' + val + '"';
-        }else{
-            return '';
-        }
-    }, 
-    makeObjectType:function(val){
-        if(val !== null && val !== undefined && val !== '') {
-            return 'generator-type="' + val + '"';
-        }else{
-            return '';
-        }
-    },
-    makeAttributes:function(obj){
-        /*
-        check if the object has attributes and return it in
-        a presentable format
-         */
-        var _string = '';
-        $.each(obj,function(key,value){
-            if(value !== '' && value !== undefined && value !== null) {
-                _string += key + '="' + value + '" ';
+    helpers:{
+        makeGeneratorID:function(type,unit){
+            var _string = generator.nomenclature.generator;
+            return _string.replace('{{type}}',type).replace('{{unit}}',unit);
+        },
+        makeObjectClass:function(val){
+            if(val !== null && val !== undefined && val !== '') {
+                return 'class="' + val + '"';
+            }else{
+                return '';
             }
-        });
-        return _string;
-    },
-    makeInlineStyle:function(obj,parent){
-        var _styleString = '<style type="text/css">\n';
-        if(typeof obj == 'object'){
-            _styleString += '#'+parent+'{\n';
-            for(var o in obj){
-                if(o !== 'type' && o !== 'url')
-                    _styleString += o+':'+obj[o]+';\n';
+        },
+        makeObjectID:function(val){
+            if(val !== null && val !== undefined && val !== '') {
+                return 'id="' + val + '"';
+            }else{
+                return '';
             }
-            _styleString += '}\n'
-        _styleString += '</style>';
-        }
-        $(_styleString).appendTo('head');
+        },
+        makeObjectValue:function(val){
+            if(val !== null && val !== undefined && val !== '') {
+                return 'value="' + val + '"';
+            }else{
+                return '';
+            }
+        },
+        makeObjectType:function(val){
+            if(val !== null && val !== undefined && val !== '') {
+                return 'generator-type="' + val + '"';
+            }else{
+                return '';
+            }
+        },
+        makeAttributes:function(obj){
+            /*
+             check if the object has attributes and return it in
+             a presentable format
+             */
+            var _string = '';
+            $.each(obj,function(key,value){
+                if(value !== '' && value !== undefined && value !== null) {
+                    _string += key + '="' + value + '" ';
+                }
+            });
+            return _string;
+        },
+        makeInlineStyle:function(obj,parent){
+            var _styleString = '<style type="text/css">\n';
+            if(typeof obj == 'object'){
+                _styleString += '#'+parent+'{\n';
+                for(var o in obj){
+                    if(o !== 'type' && o !== 'url')
+                        _styleString += o+':'+obj[o]+';\n';
+                }
+                _styleString += '}\n'
+                _styleString += '</style>';
+            }
+            $(_styleString).appendTo('head');
 
-    },
-    makeEventHandlers:function(key,id,val){
-        $('body').on(key, '[' + id + ']', function () {
-            eval(val);
-        });
+        },
+        makeEventHandlers:function(key,id,val){
+            $('body').on(key, '[' + id + ']', function () {
+                eval(val);
+            });
+        }
     },
     build:function(obj){
         function FormatException(title,body){
@@ -167,8 +169,8 @@ var generator = {
                     _checkAgainst = _core[i].type;
                 }
                 var _valid = $.inArray(_checkAgainst,_validItems),
-                    _generatorID = generator.makeGeneratorID(_core[i].type,i),
-                    _attributes = generator.makeAttributes(_core[i].attributes);
+                    _generatorID = generator.helpers.makeGeneratorID(_core[i].type,i),
+                    _attributes = generator.helpers.makeAttributes(_core[i].attributes);
                 console.log(_valid);
                 if(_core[i].template !== null && _core[i].template !== undefined){
                     if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
@@ -178,7 +180,7 @@ var generator = {
                             if(key == 'type' && value == 'file'){
                                 LoadStyleSheet(_core[i].style['url']);
                             }else if(key == 'type' && value == 'inline'){
-                                generator.makeInlineStyle(_core[i].style,_core[i].id);
+                                generator.helpers.makeInlineStyle(_core[i].style,_core[i].id);
                             }else {
                                 _styleString += key + ':' + value + ';';
                             }
@@ -207,18 +209,18 @@ var generator = {
                             });
                             var item = '';
                             for(var o in _core[i].options){
-                                item += child.replace('{{core.class}}',_core[i].options[o].class !== null ? generator.makeObjectClass(_core[i].options[o].class) : '');
-                                item = item.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
+                                item += child.replace('{{core.class}}',_core[i].options[o].class !== null ? generator.helpers.makeObjectClass(_core[i].options[o].class) : '');
+                                item = item.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i+'-'+o+'-child'));
                                 item = item.replace('{{object.child.content}}',_core[i].options[o].item);
-                                item = item.replace('{{core.value}}',generator.makeObjectValue(_core[i].options[o].value));
-                                item = item.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template+'.sub'));
+                                item = item.replace('{{core.value}}',generator.helpers.makeObjectValue(_core[i].options[o].value));
+                                item = item.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template+'.sub'));
                             }
                             var result = parent.replace('{{@inject:[%each.child%]}',item);
-                            result = result.replace('{{core.id}}',_core[i].id !== null ? generator.makeObjectID(_core[i].id) : '');
-                            result = result.replace('{{core.class}}',_core[i].id !== null ? generator.makeObjectClass(_core[i].class) : '');
+                            result = result.replace('{{core.id}}',_core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
+                            result = result.replace('{{core.class}}',_core[i].id !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
                             result = result.replace('{{core.attributes}}',_attributes);
-                            result = result.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template));
-                            result = result.replace(/{{gen.id}}/g,generator.makeGeneratorID(_core[i].type,i));
+                            result = result.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template));
+                            result = result.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i));
                             result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}','disabled') : result.replace(' {{object.parent.disabled}}','');
                             result = _styleString !== '' && _styleString !== undefined ? result.replace('{{gen.style}}','style="' + _styleString + '"') : result.replace('{{gen.style}}','');
                             _structure += result;
@@ -227,11 +229,11 @@ var generator = {
                         var _template = generator.getTemplate(_core[i].template,_core[i].type);
                         _template = _template.replace('{{object.parent.content}}', _core[i].content);
                         _template = _template.replace(/{{gen.id}}/g, _generatorID);
-                        _template = _template.replace('{{gen.type}}',generator.makeObjectType(_core[i].type+'.'+_core[i].template));
+                        _template = _template.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template));
                         _template = _template.replace('{{core.attributes}}',_attributes);
                         _template = _template.replace(/{{object.parent.id}}/g,_core[i].id);
-                        _template = _template.replace('{{core.id}}',_core[i].id !== null ? generator.makeObjectID(_core[i].id) : '');
-                        _template = _template.replace('{{core.class}}',_core[i].class !== null ? generator.makeObjectClass(_core[i].class) : '');
+                        _template = _template.replace('{{core.id}}',_core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
+                        _template = _template.replace('{{core.class}}',_core[i].class !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
                         _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? _template.replace('{{object.parent.disabled}}','disabled') : _template.replace(' {{object.parent.disabled}}','');
                         _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}','style="' + _styleString + '"') : _template.replace('{{gen.style}}','')
                         if (_template.indexOf('@include') > -1) {
@@ -242,7 +244,7 @@ var generator = {
                             for (obj in generator.core) {
                                 if (generator.core[obj].type == coreReference) {
                                     toAdd = toAdd.replace(/{{object.parent.id}}/g,generator.core[obj].id);
-                                    toAdd = toAdd.replace(/{{gen.id}}/g, generator.makeGeneratorID(generator.core[obj].type, obj));
+                                    toAdd = toAdd.replace(/{{gen.id}}/g, generator.helpers.makeGeneratorID(generator.core[obj].type, obj));
                                 }
                             }
                             _template = _template.replace(toRemove, toAdd);
@@ -275,7 +277,7 @@ var generator = {
                     if (_valid > -1) {
                         $(_core[i].parent).append(_structure);
                         $.each(_core[i].events, function (key, value) {
-                            generator.makeEventHandlers(key,_generatorID,value);
+                            generator.helpers.makeEventHandlers(key,_generatorID,value);
                         });
                     }
             }
