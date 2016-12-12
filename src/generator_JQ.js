@@ -13,13 +13,14 @@ var generator = {
         object:['object','button','div','section','ul','li','list','nav','form','radio','select','checkbox','footer','header','textarea'],
         component:['box','banner','gutter','card','gallery','hero'],
         widget:['clock'],
-        extensions:{}
+        extensions:[]
     },
     nomenclature:{
         generator:"generator-id=\"{{type}}-{{unit}}\"",
         template:"generator.template",
         component:"generator.component",
-        widget:"generator.widget"
+        widget:"generator.widget",
+        extension:"generator.extensions"
     },
     template: {
         form:{
@@ -56,6 +57,7 @@ var generator = {
     },
     extensions: {},
     core : {},
+    config:{},
     getTemplate:function(item,type){
         /*
         gets the type of template object from the JSON and
@@ -335,45 +337,85 @@ var generator = {
         }
     },
     extend:function(obj){
-        var _extensionsLength = generator.extensions.length;
-        if(typeof obj == 'object'){
-            var objStructure = '',
-                dup = true;
-            $.each(obj,function(key,value){
-                objStructure += key == 'name' ? value+':{\n' : '';
-                objStructure += key == 'identifier' ? value+':' : '';
-                if(key == 'code'){
-                    objStructure += '"'+value+'"';
-                    dup = false;
-                }else{
-                    if(key == 'parent'){
-                        objStructure += '{\n';
-                        objStructure += key+': "'+value+'",\n';
-                    }
-                    if(key == 'child'){
-                        objStructure += key+': "'+value+'"';
+        /*
+         format is the following SIMPLE EXTENSION :
+         # {
+         #  identifier:"your_extension_name",
+         #  code:"your extension code"
+         # }
+         NESTED EXTENSION
+         # {
+         #  identifier:"your_extension_name",
+         #  parent:"parent code",
+         #  child:"nested child node"
+         }
+         */
+        try {
+            if(Array.isArray(obj) == true){
+                /*
+                if the user is registering an array of extensions
+                let's loop through the array and register them
+                all at once
+                 */
+                for(var a in obj){
+                    var objArray = obj[a];
+                    if (typeof obj == 'object') {
+                        var _extensionName = '',
+                            _extensionFormat = {};
+                        for (var p in objArray) {
+                            if (objArray.hasOwnProperty(p)) {
+                                _extensionName += p === 'identifier' ? objArray[p] : '';
+                                if (p == 'parent') {
+                                    _extensionFormat[p] = objArray[p];
+                                }
+                                if (p == 'child') {
+                                    _extensionFormat[p] = objArray[p];
+                                }
+                                if (p == 'code') {
+                                    _extensionFormat = objArray[p];
+                                }
+                            }
+                        }
+                        if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
+                            alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
+                        } else {
+                            generator.accept.extensions.push(_extensionName);
+                            generator.extensions[_extensionName] = _extensionFormat;
+                        }
+                    } else {
+                        throw new generator.formatException('Type mismatch', 'An object was expected')
                     }
                 }
-            });
-            objStructure += '\n}';
-            if(dup == true){
-                objStructure += '\n}';
+            }else{
+                if (typeof obj == 'object') {
+                    _extensionName = '';
+                    _extensionFormat = {};
+                    for (var p in obj) {
+                        if (obj.hasOwnProperty(p)) {
+                            _extensionName += p === 'identifier' ? obj[p] : '';
+                            if (p == 'parent') {
+                                _extensionFormat[p] = obj[p];
+                            }
+                            if (p == 'child') {
+                                _extensionFormat[p] = obj[p];
+                            }
+                            if (p == 'code') {
+                                _extensionFormat = obj[p];
+                            }
+                        }
+                    }
+                    if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
+                        alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
+                    } else {
+                        generator.accept.extensions.push(_extensionName);
+                        generator.extensions[_extensionName] = _extensionFormat;
+                    }
+                } else {
+                    throw new generator.formatException('Type mismatch', 'An object was expected')
+                }
             }
-            if(_extensionsLength > 0){
-                objStructure += ',';
-            }
-            console.log(objStructure);
-            generator.accept.extensions += objStructure;
-            generator.extensions += objStructure;
-            /*var extension = {
-                name:"name",
-                identifier:"blocks",
-                parent:"<div {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</div>",
-                child:"<div></div>",
-                acceptEvents:true
-            }*/
-        }else{
-            throw new generator.formatException('Type mismatch','An object was expected')
+        }catch(e){
+            //
         }
     },
     init:function(src){
