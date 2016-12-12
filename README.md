@@ -51,7 +51,7 @@ Directives let you pass instructions to the code, telling it what to do in a spe
 
 - include : like it's name implies, it 'includes' code from another template object or it's child. The include directive does not iterate so it is not adapted to arrays or objects. For this, use inject. Include requires one parameter which is the name of the template object (i.e. include:form.select)
 - inject : this directive injects a snippet of code into the template object. It is different from the include directive as the code it injects will be evaluated and parsed. 
-- remove : the remove directive will remove specific content from the template. This allows you to prototype template objects. In the directive, wrap strings in quotations or they will be treated as an object (i.e. remove:"<p>Foo</p>" will perform a string replace on all matching content. remove:<p> will remove all paragraph tags)
+- remove : the remove directive will remove specific content from the template. This allows you to prototype template objects. In the directive, wrap strings in quotations or they will be treated as an object (i.e. remove:"&lt;p&gt;Foo&lt;/p&gt;" will perform a string replace on all matching content. remove:&lt;p&gt; will remove all paragraph tags)
 
 -> Iterative directives
 
