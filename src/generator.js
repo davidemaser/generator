@@ -96,6 +96,17 @@ var generator = {
         }
     },
     helpers:{
+        adoptChidren:function(parent,children){
+            if(typeof children == 'object'){
+                $.each(children,function(key,value){
+                    $(parent).append(value);
+                    //@todo this has to be done soon or descoped
+                })
+            }
+        },
+        destroyEventHandlers:function(obj,event){
+            $(obj).unbind(event);
+        },
         makeGeneratorID:function(type,unit){
             /*
              returns a unique generator id. Each object
@@ -191,6 +202,10 @@ var generator = {
             $('body').on(key, '[' + id + ']', function () {
                 eval(val);
             });
+        },
+        switchParent:function(item,parent){
+            var _item = $(item).detach();
+            $(parent).append(_item);
         }
     },
     build:function(obj){

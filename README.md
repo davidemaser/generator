@@ -14,6 +14,18 @@ You can initialize the script with generator.init(). If you do so, remove the in
 
 The core function has a few built in templates to play around with. These can be found in the generator.template object. See below for a list of parameters used by generator. 
 
+#####Attached Events
+
+Each template object can have events attached to it. The events are bound to the objects unique generator id that is created when generator executes. Events are passed to the script as an object and when the template object is created, each event will be attached to that object and the handler registered. Events use the '$.on' directive. To add custom events to a template object after it is loaded, you can call it by it's ID or generator ID ```$(THE_ID).event(function(){})```. Events are unregistered when the template object is removed from the DOM. You can use the helper function destroyEventHandlers() to removed attached events ```generator.helpers.destroyEventHandlers('[generator-id="object-1"]','click')```
+
+#####Assigning Parents
+
+Each template object can be assigned a parent object. Defining a parent will append the template object to the parent and inherit all styles and events from the parent. If no parent is assigned, the template object will be appended to the document body. If a parent is removed from the DOM tree, all it's children will be removed as well. You can call the switchParent() helper function to assign a child a new parent before removing that parent. ```generator.helpers.switchParent('item_to_move','new_parent')```
+
+#####Assigning Children
+
+DOM elements or template objects can be assigned children. These children can inherit the parent's attributes all while residing outside of the parent. The child does not have to be within the parent's node tree (although the function allows you to append or prepend the child to the parent). This is very useful when creating trigger items on a page or for delegating activity. You can call the adoptChidren helper function. ```generator.helpers.adoptChidren('parent',['child1','child2','child2'])```
+
 ###Extending templates
 
 You can extend the existing templates by injecting a template object on the fly or by loading them from an external JSON file. Generator has an 'extend' function that injects user built templates into the core object, allowing these new templates to be used by the function. Extensions can be bypassed by passing a boolean in the generator.init call (i.e : ```generator.init:function(src,false)```)
