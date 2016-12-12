@@ -57,7 +57,15 @@ var generator = {
     },
     extensions: {},
     core : {},
-    config:{},
+    config:{
+        extensions:{
+            src:{
+                root:'data/extensions/index.json',
+                exists:false
+            },
+            enable:true
+        }
+    },
     getTemplate:function(item,type){
         /*
         gets the type of template object from the JSON and
@@ -336,6 +344,24 @@ var generator = {
             }
         }
     },
+    initExtensions:function(obj){
+        if(obj !== false) {
+            if (obj == '' || obj == undefined) {
+                obj = generator.config.extensions.src.root;
+            }
+            if (obj !== '' && obj !== null && obj !== undefined) {
+                $.ajax({
+                    url: obj,
+                    success: function (data) {
+                        generator.extend(data);
+                    },
+                    error: function () {
+                        generator.extend(obj);
+                    }
+                })
+            }
+        }
+    },
     extend:function(obj){
         /*
          format is the following SIMPLE EXTENSION :
@@ -350,29 +376,57 @@ var generator = {
          #  child:"nested child node"
          }
          */
-        try {
-            if(Array.isArray(obj) == true){
-                /*
-                if the user is registering an array of extensions
-                let's loop through the array and register them
-                all at once
-                 */
-                for(var a in obj){
-                    var objArray = obj[a];
+            try {
+                if (Array.isArray(obj) == true) {
+                    /*
+                     if the user is registering an array of extensions
+                     let's loop through the array and register them
+                     all at once
+                     */
+                    for (var a in obj) {
+                        var objArray = obj[a];
+                        if (typeof obj == 'object') {
+                            var _extensionName = '',
+                                _extensionFormat = {};
+                            for (var p in objArray) {
+                                if (objArray.hasOwnProperty(p)) {
+                                    _extensionName += p === 'identifier' ? objArray[p] : '';
+                                    if (p == 'parent') {
+                                        _extensionFormat[p] = objArray[p];
+                                    }
+                                    if (p == 'child') {
+                                        _extensionFormat[p] = objArray[p];
+                                    }
+                                    if (p == 'code') {
+                                        _extensionFormat = objArray[p];
+                                    }
+                                }
+                            }
+                            if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
+                                alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
+                            } else {
+                                generator.accept.extensions.push(_extensionName);
+                                generator.extensions[_extensionName] = _extensionFormat;
+                            }
+                        } else {
+                            throw new generator.formatException('Type mismatch', 'An object was expected')
+                        }
+                    }
+                } else {
                     if (typeof obj == 'object') {
-                        var _extensionName = '',
-                            _extensionFormat = {};
-                        for (var p in objArray) {
-                            if (objArray.hasOwnProperty(p)) {
-                                _extensionName += p === 'identifier' ? objArray[p] : '';
+                        _extensionName = '';
+                        _extensionFormat = {};
+                        for (var p in obj) {
+                            if (obj.hasOwnProperty(p)) {
+                                _extensionName += p === 'identifier' ? obj[p] : '';
                                 if (p == 'parent') {
-                                    _extensionFormat[p] = objArray[p];
+                                    _extensionFormat[p] = obj[p];
                                 }
                                 if (p == 'child') {
-                                    _extensionFormat[p] = objArray[p];
+                                    _extensionFormat[p] = obj[p];
                                 }
                                 if (p == 'code') {
-                                    _extensionFormat = objArray[p];
+                                    _extensionFormat = obj[p];
                                 }
                             }
                         }
@@ -386,115 +440,144 @@ var generator = {
                         throw new generator.formatException('Type mismatch', 'An object was expected')
                     }
                 }
-            }else{
-                if (typeof obj == 'object') {
-                    _extensionName = '';
-                    _extensionFormat = {};
-                    for (var p in obj) {
-                        if (obj.hasOwnProperty(p)) {
-                            _extensionName += p === 'identifier' ? obj[p] : '';
-                            if (p == 'parent') {
-                                _extensionFormat[p] = obj[p];
-                            }
-                            if (p == 'child') {
-                                _extensionFormat[p] = obj[p];
-                            }
-                            if (p == 'code') {
-                                _extensionFormat = obj[p];
-                            }
-                        }
-                    }
-                    if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
-                        alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
-                    } else {
-                        generator.accept.extensions.push(_extensionName);
-                        generator.extensions[_extensionName] = _extensionFormat;
-                    }
-                } else {
-                    throw new generator.formatException('Type mismatch', 'An object was expected')
-                }
+            } catch (e) {
+                //
             }
-        }catch(e){
-            //
-        }
     },
-    init:function(src){
-        if(typeof src == 'object'){
-            generator.build(src)
-        }else{
-            $.ajax({
-                url:src,
-                method:'GET',
-                dataType:'json',
-                success:function(data){
-                    generator.build(data);
-                },
-                error:function(e){
-                    console.log('The following error occured '+e);
-                }
-            });
-        }
+    init:function(src,extensions){
+        /*
+        the parameter extensions allows the user to load extensions into the
+        generator object before the builder script is executed. To bypass the
+        loading of extensions, set the parameter to false
+        i.e generator.init('data/demo.json',false)
+        To load extensions when the script initialises, pass a JSON formatted
+        extension string (see extend function) as the parameter. If you leave
+        the string empty the extension default json source will be loaded. You
+        can also pass the source of a custom json extension file by using that
+        url as the parameter value
+        i.e. generator.init('data/demo.json','data/extends.json')
+         */
+        $.when(generator.initExtensions(extensions)).done(function() {
+            if(typeof src == 'object'){
+                generator.build(src)
+            }else{
+                $.ajax({
+                    url:src,
+                    method:'GET',
+                    dataType:'json',
+                    success:function(data){
+                        generator.build(data);
+                    },
+                    error:function(e){
+                        console.log('The following error occured '+e);
+                    }
+                });
+            }
+        });
     },
     formatException: function (title, body) {
         return title + ' : ' + body;
     }
 } || {};
-new generator.init('data/demo.json'); // method using external JSON
-/*new generator.init(
-    {
-        "core": [{
-            "type": "ul",
-            "template": "layout.list",
-            "class": "boo",
-            "id": "casas",
-            "disabled": false,
-            "attributes": {
-                "data-href": "",
-                "data-prop": ""
-            },
-            "content": "Click Me",
-            "style": {
-                "background": "#fff",
-                "border-right": "1px solid #000"
-            },
-            "events": {
-                "click": "console.log('this')"
-            },
-            "options":[
-                {
-                    "item":"sdfsdfsdf",
-                    "value":"",
-                    "class":""
-                },
-                {
-                    "item":"bloobaloo",
-                    "value":"sdfsdf",
-                    "class":""
-                }
-            ],
-            "parent": "body"
-        }, {
-            "type": "button",
-            "template": null,
-            "class": "boo",
-            "id": "casas",
-            "disabled": false,
-            "attributes": {
-                "data-href": "",
-                "data-prop": ""
-            },
-            "content": "Don't Click Me",
-            "style": {
-                "background": "#fff",
-                "border-right": "1px solid #000"
-            },
-            "events": {
-                "click": "console.log('sdfsdfsdf')"
-            },
-            "options":{
 
+//new generator.init('data/demo.json',false); // method using external JSON
+new generator.init(
+    {
+        "core": [
+            {
+                "type": "object",
+                "template": "layout.list",
+                "class": "boo",
+                "id": "casas",
+                "disabled": false,
+                "attributes": {
+                    "data-href": "my-link",
+                    "data-prop": "negative"
+                },
+                "content": "Click Me",
+                "style": {
+                    "background": "#fff",
+                    "border-right": "1px solid #000"
+                },
+                "events": {
+                    "click": "console.log('this')"
+                },
+                "options": [
+                    {
+                        "item": "sdfsdfsdf",
+                        "value": "",
+                        "class": ""
+                    },
+                    {
+                        "item": "bloobaloo",
+                        "value": "sdfsdf",
+                        "class": ""
+                    }
+                ],
+                "parent": "body"
             },
-            "parent": "body"
-        }]
-    });
-    */
+            {
+                "type":"object",
+                "template":"form.textarea",
+                "id":"formText",
+                "content":"default text",
+                "attributes": {
+                    "rows": 10,
+                    "cols": 10
+                },
+                "parent": "body"
+            },
+            {
+                "type": "object",
+                "template": "form.button",
+                "class": "boo",
+                "id": "casas",
+                "disabled": false,
+                "attributes": {
+                    "data-href": "",
+                    "data-prop": ""
+                },
+                "content": "Don't Click Me",
+                "style": null,
+                "events": {
+                    "click": "console.log('sdfsdfsdf')"
+                },
+                "options": {
+                },
+                "parent": "body"
+            },
+            {
+                "type": "component",
+                "template": "banner",
+                "class": null,
+                "id": "casas",
+                "disabled": false,
+                "attributes": {
+                    "data-href": "",
+                    "data-prop": ""
+                },
+                "content": "Don't Click Me",
+                "style": {
+                    "type":"inline",
+                    "background": "#fff",
+                    "border-right": "1px solid #000"
+                },
+                "events": {
+                    "click": "alert('bam bam')"
+                },
+                "options": [
+                    {
+                        "item": "sdfsdfsdf",
+                        "value": "",
+                        "class": "this"
+                    },
+                    {
+                        "item": "bloobaloo",
+                        "value": "sdfsdf",
+                        "class": ""
+                    }
+                ],
+                "parent": "body"
+            }
+        ]
+    },false);

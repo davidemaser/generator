@@ -1,0 +1,11 @@
+[
+  {
+    "identifier": "blockade",
+    "code": "<div {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</div>"
+  },
+  {
+    "identifier": "blocks",
+    "parent": "<div {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</div>",
+    "child": "<div></div>"
+  }
+]
