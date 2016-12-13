@@ -166,11 +166,13 @@ var generator = {
              a presentable format
              */
             var _string = '';
+            if(typeof obj == 'object'){
             $.each(obj,function(key,value){
                 if(value !== '' && value !== undefined && value !== null) {
                     _string += key + '="' + value + '" ';
                 }
             });
+                }
             return _string;
         },
         makeInlineStyle:function(obj,parent){
