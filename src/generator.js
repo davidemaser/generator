@@ -57,6 +57,20 @@ var generator = {
         badge:""
     },
     extensions: {},
+        plugins: [
+            {
+            translator: {
+                activate: true,
+                observe: 'tr',
+                languages: ['en_EN', 'fr_FR'],
+                root: 'plugins/translator/',
+                format:'json'
+            }
+        },
+        {
+            boxer:{}
+         }
+    ],
     core : {},
     config:{
         extensions:{
@@ -69,6 +83,12 @@ var generator = {
         helpers:{
             scope:'global',
             extend:false
+        },
+        storage:{
+            allow:true,
+            type:'local',
+            persist:true,
+            flush:'function'
         }
     },
     getTemplate:function(item,type){
@@ -443,24 +463,6 @@ var generator = {
             }
         }
     },
-    initExtensions:function(obj){
-        if(obj !== false) {
-            if (obj == '' || obj == undefined) {
-                obj = generator.config.extensions.src.root;
-            }
-            if (obj !== '' && obj !== null && obj !== undefined) {
-                $.ajax({
-                    url: obj,
-                    success: function (data) {
-                        generator.extend(data);
-                    },
-                    error: function () {
-                        generator.extend(obj);
-                    }
-                })
-            }
-        }
-    },
     extend:function(obj){
         /*
          format is the following SIMPLE EXTENSION :
@@ -556,7 +558,7 @@ var generator = {
         url as the parameter value
         i.e. generator.init('data/demo.json','data/extends.json')
          */
-        $.when(generator.initExtensions(extensions)).done(function() {
+        $.when(generator.initPlugins(),generator.initExtensions(extensions)).done(function() {
             if(typeof src == 'object'){
                 generator.build(src)
             }else{
@@ -573,6 +575,49 @@ var generator = {
                 });
             }
         });
+    },
+    initExtensions: function (obj) {
+        if (obj !== false) {
+            if (obj == '' || obj == undefined) {
+                obj = generator.config.extensions.src.root;
+            }
+            if (obj !== '' && obj !== null && obj !== undefined) {
+                $.ajax({
+                    url: obj,
+                    success: function (data) {
+                        generator.extend(data);
+                    },
+                    error: function () {
+                        generator.extend(obj);
+                    }
+                })
+            }
+        }
+    },
+    initPlugins: function () {
+        function executeFunctionByName(functionName, context) {
+            var args = [].slice.call(arguments).splice(2);
+            var namespaces = functionName.split(".");
+            var func = namespaces.pop();
+            for(var i = 0; i < namespaces.length; i++) {
+                context = context[namespaces[i]];
+            }
+            return context[func].apply(context, args);
+        }
+        var _list = generator.plugins;
+        for(var p in _list){
+            $.each(_list[p],function(key,value){
+                var _pluginID = key;
+                if(value.root !== undefined){
+                    var _root = value.root;
+                    $.getScript(_root+'plugin.js?p='+_pluginID).done(function(){
+                        executeFunctionByName(_pluginID+'.init', window, value);
+                     }).fail(function(){
+                        console.log('Unable to load '+_pluginID);
+                     });
+                }
+            });
+        }
     },
     formatException: function (title, body) {
         return title + ' : ' + body;
