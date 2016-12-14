@@ -545,7 +545,7 @@ var generator = {
                 //
             }
     },
-    init:function(src,extensions){
+    init:function(src,extensions,params){
         /*
         the parameter extensions allows the user to load extensions into the
         generator object before the builder script is executed. To bypass the
@@ -558,7 +558,7 @@ var generator = {
         url as the parameter value
         i.e. generator.init('data/demo.json','data/extends.json')
          */
-        $.when(generator.initPlugins(),generator.initExtensions(extensions)).done(function() {
+        $.when(generator.initPlugins(params),generator.initExtensions(extensions)).done(function() {
             if(typeof src == 'object'){
                 generator.build(src)
             }else{
@@ -574,6 +574,9 @@ var generator = {
                     }
                 });
             }
+        });
+        $.when(this).done(function(){
+            //console.log('done')
         });
     },
     initExtensions: function (obj) {
@@ -594,7 +597,17 @@ var generator = {
             }
         }
     },
-    initPlugins: function () {
+    initPlugins: function (params) {
+        var _multiple = Array.isArray(params);
+        params = _multiple == true && params.length == 1 ? params[0] : params; //if the params are formatted as an array but only contain one object
+        var _tempObject = {};
+        if(_multiple == true){
+            for(p in params){
+                _tempObject[params[p].plugin] = params[p];
+            }
+        }else{
+            _tempObject = params;
+        }
         function executeFunctionByName(functionName, context) {
             var args = [].slice.call(arguments).splice(2);
             var namespaces = functionName.split(".");
@@ -604,16 +617,22 @@ var generator = {
             }
             return context[func].apply(context, args);
         }
+        function returnPluginParams(match){
+            $.each(_tempObject,function(key,value){
+                if(key === match){
+                    return value.params;
+                }
+            })
+        }
         var _list = generator.plugins;
         for(var p in _list){
             $.each(_list[p],function(key,value){
-                var _pluginID = key;
                 if(value.root !== undefined){
                     var _root = value.root;
-                    $.getScript(_root+'plugin.js?p='+_pluginID).done(function(){
-                        executeFunctionByName(_pluginID+'.init', window, value);
+                    $.getScript(_root+'plugin.js?p='+key).done(function(){
+                        executeFunctionByName(key+'.setup', window, [value,params]);
                      }).fail(function(){
-                        console.log('Unable to load '+_pluginID);
+                        console.log('Unable to load '+key);
                      });
                 }
             });
@@ -623,7 +642,7 @@ var generator = {
         return title + ' : ' + body;
     }
 } || {};
-new generator.init('data/demo.json',false); // method using external JSON
+new generator.init('data/demo.json',false,[{plugin:'translator',params:['en_EN',1000]}]); // method using external JSON
 /*new generator.init(
     {
         "core": [
