@@ -20,7 +20,8 @@ var generator = {
         template:"generator.template",
         component:"generator.component",
         widget:"generator.widget",
-        extension:"generator.extensions"
+        extension:"generator.extension",
+        data:"generator.data"
     },
     template: {
         form:{
@@ -64,6 +65,10 @@ var generator = {
                 exists:false
             },
             enable:true
+        },
+        helpers:{
+            scope:'global',
+            extend:false
         }
     },
     getTemplate:function(item,type){
@@ -95,6 +100,70 @@ var generator = {
             return eval(_string);
         }
     },
+    ajax:{
+        DataHolder : {},
+        logData:function(){
+          console.log(generator.ajax.DataHolder);
+        },
+        dataToObject:function(arr,obj,callback) {
+            /*
+            function takes parameter arr in the form of an array and
+            calls the dataCleanAndParse function to collect and store
+            data. The parameters in the arr array correspond to the
+            parameters required by dataCleanAndParse. The collected
+            data is then input into the object (obj)
+            # arr array schema
+            # ['json.file',boolean,'array or string',callback.function]
+            # callback is optional
+             */
+            var ins = arr || null;
+            if(ins !== null) {
+                if (ins[3] !== undefined && ins[3] !== null && ins[3] !== '') {
+                    ins[3] = ins[3]
+                } else {
+                    ins[3] = null;
+                }
+                $.when(generator.ajax.dataCleanAndParse(ins[0], ins[1], ins[2], ins[3])).done(function(){
+                    callback;
+                });
+            }
+        },
+        dataCleanAndParse:function(path,parse,remove,callback){
+            /*
+            function collects and stores JSON data in a global object.
+            The function also cleans and parses the JSON data. This
+            allows you to remove specific elements from the content.
+            remove parameter can be a string or array
+             */
+            $.when($.ajax({
+                url:path,
+                success:function(data){
+                    generator.ajax.DataHolder = data;
+                },error:function(){
+                    console.log('unable to load JSON')
+                }
+            })).done(function(){
+                var _data = JSON.stringify(generator.ajax.DataHolder),
+                    _parse = parse || false;
+                if(remove !== '' && remove !== undefined && remove !== null){
+                    if(typeof remove == 'object' && remove !== undefined && remove !== null && remove !== ''){
+                        for(var r in remove){
+                            var _junk = new RegExp(remove[r], 'g');
+                            _data = _data.replace(_junk,'');
+                        }
+                    }else if(typeof remove !== 'object' && remove !== undefined && remove !== null && remove !== ''){
+                        _junk = new RegExp(remove, 'g');
+                        _data = _data.replace(_junk,'');
+                    }
+                }
+                if(_parse == true){
+                    _data = JSON.parse(_data);
+                }
+                return _data;
+            });
+            callback();
+        }
+    },
     helpers:{
         adoptChidren:function(parent,children){
             if(typeof children == 'object'){
@@ -103,6 +172,9 @@ var generator = {
                     //@todo this has to be done soon or descoped
                 })
             }
+        },
+        delayExecution:function(delay,callback){
+            window.setTimeout(callback(),delay);
         },
         destroyEventHandlers:function(obj,event){
             $(obj).unbind(event);
@@ -120,11 +192,19 @@ var generator = {
              check if the object has an CLASS and returns it in
              a presentable format
              */
+            var _string = '';
             if(val !== null && val !== undefined && val !== '') {
-                return 'class="' + val + '"';
-            }else{
-                return '';
+                if (typeof val == 'object') {
+                    $.each(val, function (key, value) {
+                        if (value !== '' && value !== undefined && value !== null) {
+                            _string += key + '="' + value + '" ';
+                        }
+                    });
+                } else {
+                    _string = val;
+                }
             }
+            return _string;
         },
         makeObjectID:function(val){
             /*
@@ -166,13 +246,15 @@ var generator = {
              a presentable format
              */
             var _string = '';
-            if(typeof obj == 'object'){
-            $.each(obj,function(key,value){
-                if(value !== '' && value !== undefined && value !== null) {
-                    _string += key + '="' + value + '" ';
-                }
-            });
-                }
+            if (typeof obj == 'object') {
+                $.each(obj, function (key, value) {
+                    if (value !== '' && value !== undefined && value !== null) {
+                        _string += key + '="' + value + '" ';
+                    }
+                });
+            }else{
+                _string = obj;
+            }
             return _string;
         },
         makeInlineStyle:function(obj,parent){
@@ -496,9 +578,8 @@ var generator = {
         return title + ' : ' + body;
     }
 } || {};
-
-//new generator.init('data/demo.json',false); // method using external JSON
-new generator.init(
+new generator.init('data/demo.json',false); // method using external JSON
+/*new generator.init(
     {
         "core": [
             {
@@ -597,4 +678,4 @@ new generator.init(
                 "parent": "body"
             }
         ]
-    },false);
+    },false);*/
