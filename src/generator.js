@@ -566,8 +566,8 @@ var generator = {
     the obj parameter should be formatted as follows
     [
     	{
-    		id:'string',
-    		url:'string',
+    		id:'demo',
+    		url:'demo',
     		functions:[
                  {
                      call:'testAgain',
@@ -705,6 +705,7 @@ var generator = {
     }
 } || {};
 new generator.init('data/demo.json',false,[{plugin:'translator',params:['fr_FR',1000]}]); // method using external JSON
+
 /*new generator.init(
     {
         "core": [
