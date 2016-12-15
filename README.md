@@ -79,7 +79,7 @@ Iterative directives tell the inject function what to do with multiple instances
 
 ###Plugins
 
-Plugins can be scripted as separate JavaScript modules and imported into generator before the core function loads. This allows the user to apply filters or transformations to template objects without modifying the core object. Plugins can be loaded during initialization by calling the third generator.init parameter. The parameter syntax allows the user to specify which plugin to load and pass parameters to the plugin. Two parameters are used: the plugin name (and unique identifier) and an array of parameters to pass to the plugin. The syntax is as follows :
+Plugins can be scripted as separate JavaScript modules and imported into generator before the core function loads. This allows the user to apply filters or transformations to template objects without modifying the core object. Plugins can be loaded during initialization by calling the generator.init parameter. The parameter syntax allows the user to specify which plugin to load and pass parameters to the plugin. Two parameters are used: the plugin name (and unique identifier) and an array of parameters to pass to the plugin. The syntax is as follows :
 
 ```{plugin:'plugin_name',params:['string',numeric,{object:'value'}]}```
 
