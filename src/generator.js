@@ -32,7 +32,7 @@ var generator = {
             textarea:"<textarea {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{object.parent.content}}</textarea>",
             select:{
                 parent:"<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</select>",
-                child : "<option {{gen.id}} {{gen.type}} {{core.value}}>{{object.child.content}}</option>"
+                child : "<option {{gen.id}} {{gen.type}} {{core.value}} {{core.class}}>{{object.child.content}}</option>"
 
             }
         },
@@ -80,6 +80,15 @@ var generator = {
         helpers:{
             scope:'global',
             extend:false
+        },
+        scripts:{
+            root:'lib/src/',
+            extension:{
+                format:'js',
+                append:true
+            },
+            onload:false,
+            cache:true
         },
         storage:{
             allow:true,
@@ -221,16 +230,14 @@ var generator = {
             var _string = '';
             if(val !== null && val !== undefined && val !== '') {
                 if (typeof val == 'object') {
-                    $.each(val, function (key, value) {
-                        if (value !== '' && value !== undefined && value !== null) {
-                            _string += key + '="' + value + '" ';
-                        }
-                    });
+                    for(var v in val){
+                        _string += val[v]+' ';
+                    }
                 } else {
                     _string = val;
                 }
             }
-            return _string;
+            return 'class="'+_string.trim()+'"';
         },
         makeObjectID:function(val){
             /*
@@ -403,7 +410,7 @@ var generator = {
                             }
                             var _result = _parent.replace('{{@inject:[%each.child%]}',_item);
                             _result = _result.replace('{{core.id}}',_core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
-                            _result = _result.replace('{{core.class}}',_core[i].id !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
+                            _result = _result.replace('{{core.class}}',_core[i].class !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
                             _result = _result.replace('{{core.attributes}}',_attributes);
                             _result = _result.replace('{{gen.type}}',generator.helpers.makeObjectType(_core[i].type+'.'+_core[i].template));
                             _result = _result.replace(/{{gen.id}}/g,generator.helpers.makeGeneratorID(_core[i].type,i));
@@ -439,7 +446,7 @@ var generator = {
                     }
                 }else {
                     _structure += '<' + _core[i].type + ' ' + _generatorID;
-                    _structure += _core[i].class !== '' && _core[i].class !== undefined ? ' class="' + _core[i].class + '"' : '';
+                    _structure += _core[i].class !== '' && _core[i].class !== undefined ? generator.helpers.makeObjectClass(_core[i].class) : '';
                     _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
                     _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? ' disabled' : '';
                     if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
@@ -551,7 +558,10 @@ var generator = {
                 //
             }
     },
-    loadScripts:function(obj){
+    loadScripts:function(obj,root,ext){
+        var _root = root || generator.config.scripts.root;
+        var _ext = ext || generator.config.scripts.extension.format;
+        var _append = generator.config.scripts.extension.append;
     /*
     the obj parameter should be formatted as follows
     [
@@ -559,48 +569,43 @@ var generator = {
     		id:'string',
     		url:'string',
     		functions:[
-    			{
-					call:'function.init',
-					params:'string or array'
-    			},
-    			{
-    				call:'other_function.fn'
-    			}
+                 {
+                     call:'testAgain',
+                     params:['string','or','array']
+                 },
+                 {
+                    call:'test'
+                 }
     		]
     	}
     ]
     */
     var _multiple = Array.isArray(obj);
-    	if(typeof obj == 'object'){
-			$.each(obj,function(key,value)(){
-				$.getScript(obj[key].url).done(function(){
-					if(Array.isArray(obj[key].functions) == true){
-						/*
-						iterate over the array of functions or if it is not
-						an array call the node by it's name
-						*/
-						var _tempArray = obj[key].functions;
-						for(var f in _tempArray){
-							var _params = [];
-							if(Array.isArray(_tempArray[f].params){
-								//loop and merge all those into one array
-								var _tempParams = _tempArray[f].params;
-								for(var p in _tempParams){
-									_params.push(_tempParams[p]);
-								}
-							}else{
-								_params = _tempArray[f].params;
-							}
-							generator.helpers.executeFunctionByName(_tempArray[f].call, window, _params);
-						}
-					}else{
-			
-					}	
-				}).fail(function(){
-					console.log('Unable to load '+obj[key].url);
-				});
-			}
-    	}
+        if(_multiple == true){
+            for(var m in obj){
+                var _tempArray = obj[m];
+            }
+        }else{
+            _tempArray = obj;
+        }
+        if(typeof _tempArray == 'object'){
+            $.each(obj,function(key){
+                var _tempFunctions = obj[key].functions,
+                    _tempURL = _root+obj[key].url;
+                    _tempURL += _append == true ? '.'+_ext : '';
+                $.getScript(_tempURL).done(function(){
+                    if(Array.isArray(_tempFunctions) == true){
+                        for(var f in _tempFunctions){
+                            generator.helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
+                        }
+                    }else{
+                        generator.helpers.executeFunctionByName(_tempFunctions.call, window, _tempFunctions.params);
+                    }
+                }).fail(function(){
+                    console.log('Unable to load '+_tempURL);
+                });
+            })
+        }
     },
     init:function(src,extensions,params){
         /*
@@ -699,7 +704,7 @@ var generator = {
         return title + ' : ' + body;
     }
 } || {};
-new generator.init('data/demo.json',false,[{plugin:'translator',params:['en_EN',1000]}]); // method using external JSON
+new generator.init('data/demo.json',false,[{plugin:'translator',params:['fr_FR',1000]}]); // method using external JSON
 /*new generator.init(
     {
         "core": [

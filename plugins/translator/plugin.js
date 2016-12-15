@@ -6,7 +6,9 @@ var translator = {
     config:{
         cache:'local'
     },
+    handle:'',
     words:{},
+    _tempKey : '',
     setup:function(args){
         /*
         load arguments and params into the config
@@ -38,11 +40,14 @@ var translator = {
         the configuration is all set up so we can start
         doing the actual core of this function
          */
-        translator.loadLibrary();
+        $.when(translator.loadLibrary()).done(function(){
+            translator.swapWords();
+        })
     },
     loadLibrary:function(lang){
         var _lang = lang || translator.config.params[0];
         var _urlString = translator.config.root+_lang+'/language.json';
+        translator.handle = _lang;
         function saveWords(words){
             var _tempObject = {};
            $.each(words,function(key,value){
@@ -57,6 +62,30 @@ var translator = {
             },error:function(){
                 console.log('Language library does not exist. Make sure '+_lang+'/language.json exists in the plugin root.');
             }
+        });
+    },
+    getTranslationFromLibrary:function(word,lang){
+        var _library = translator.words[lang];
+        function cycleLibrary(){
+            $.each(translator.words[lang],function(key,value){
+                var _searchWord = key.toLowerCase();
+                if(_searchWord == word){
+                    translator._tempKey =  _library[key];
+                }
+            })
+        }
+        $.when(cycleLibrary()).done(function(){
+            return false;
+        })
+    },
+    swapWords:function(){
+        var _targetClass = translator.config.observe;
+        $('.'+_targetClass).each(function(){
+            var _activeObject = $(this);
+            var _currentWord = $(this).html().toLowerCase();
+            $.when(translator.getTranslationFromLibrary(_currentWord,translator.handle)).done(function(){
+                translator._tempKey !== undefined ? $(_activeObject).html(translator._tempKey) : '';
+            });
         });
     }
 } || {};
