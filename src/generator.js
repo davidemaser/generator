@@ -99,9 +99,9 @@ var generator = {
             }
         },
         ajax: {
-            DataHolder: {},
+            dataHolder: {},
             logData: function () {
-                console.log(generator.ajax.DataHolder);
+                console.log(generator.ajax.dataHolder);
             },
             dataToObject: function (arr, obj, callback) {
                 /*
@@ -136,12 +136,12 @@ var generator = {
                 $.when($.ajax({
                     url: path,
                     success: function (data) {
-                        generator.ajax.DataHolder = data;
+                        generator.ajax.dataHolder = data;
                     }, error: function () {
                         console.log('unable to load JSON')
                     }
                 })).done(function () {
-                    var _data = JSON.stringify(generator.ajax.DataHolder),
+                    var _data = JSON.stringify(generator.ajax.dataHolder),
                         _parse = parse || false;
                     if (remove !== '' && remove !== undefined && remove !== null) {
                         if (typeof remove == 'object' && remove !== undefined && remove !== null && remove !== '') {
@@ -702,16 +702,6 @@ var generator = {
                 } else {
                     _tempObject = params;
                 }
-                function executeFunctionByName(functionName, context) {
-                    var args = [].slice.call(arguments).splice(2);
-                    var namespaces = functionName.split(".");
-                    var func = namespaces.pop();
-                    for (var i = 0; i < namespaces.length; i++) {
-                        context = context[namespaces[i]];
-                    }
-                    return context[func].apply(context, args);
-                }
-
                 function returnPluginParams(match) {
                     $.each(_tempObject, function (key, value) {
                         if (key === match) {
@@ -719,14 +709,13 @@ var generator = {
                         }
                     })
                 }
-
                 var _list = generator.plugins;
                 for (var p in _list) {
                     $.each(_list[p], function (key, value) {
                         if (value.root !== undefined) {
                             var _root = value.root;
                             $.getScript(_root + 'plugin.js?p=' + key).done(function () {
-                                executeFunctionByName(key + '.setup', window, [value, params]);
+                                generator.helpers.executeFunctionByName(key + '.setup', window, [value, params]);
                             }).fail(function () {
                                 console.log('Unable to load ' + key);
                             });
