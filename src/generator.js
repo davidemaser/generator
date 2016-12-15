@@ -15,38 +15,6 @@ var generator = {
             widget: ['clock'],
             extensions: []
         },
-        nomenclature: {
-            generator: "generator-id=\"{{type}}-{{unit}}\"",
-            template: "generator.template",
-            component: "generator.component",
-            widget: "generator.widget",
-            extension: "generator.extension",
-            data: "generator.data"
-        },
-        template: {
-            form: {
-                button: "<button {{core.id}} {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{object.parent.content}}</button>",
-                checkbox: "<label for=\"{{object.parent.id}}\"><input {{core.id}} type=\"checkbox\" {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}}>{{object.parent.content}}</label>",
-                radiobutton: "<input type=\"radiobutton\" {{gen.id}} {{core.class}} {{core.attributes}}>",
-                input: "<input type=\"text\" {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} />",
-                textarea: "<textarea {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{object.parent.content}}</textarea>",
-                select: {
-                    parent: "<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</select>",
-                    child: "<option {{gen.id}} {{gen.type}} {{core.value}} {{core.class}}>{{object.child.content}}</option>"
-
-                }
-            },
-            layout: {
-                header: "<header {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{@include:layout.nav}}</header>",
-                footer: "<footer {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></footer>",
-                nav: "<nav {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></nav>",
-                list: {
-                    parent: "<ul {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</ul>",
-                    child: "<li {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</li>"
-
-                }
-            }
-        },
         component: {
             banner: {
                 parent: "<section {{core.id}} {{gen.id}} {{gen.type}} {{core.class}}>{{@inject:[%each.child%]}</section>",
@@ -56,19 +24,6 @@ var generator = {
             card: "",
             badge: ""
         },
-        extensions: {},
-        plugins: [
-            {
-                translator: {
-                    activate: true,
-                    observe: 'tr',
-                    languages: ['en_EN', 'fr_FR'],
-                    root: 'plugins/translator/',
-                    format: 'json'
-                }
-            }
-        ],
-        core: {},
         config: {
             extensions: {
                 src: {
@@ -98,33 +53,49 @@ var generator = {
                 prefix:'GEN-'
             }
         },
-        getTemplate: function (item, type) {
-            /*
-             gets the type of template object from the JSON and
-             extracts the template string from the template
-             object
-             */
-            switch (type) {
-                case 'object':
-                    var _string = this.nomenclature.template;
-                    break;
-                case 'component':
-                    _string = this.nomenclature.component;
-                    break;
-                case 'widget':
-                    _string = this.nomenclature.widget;
-                    break;
-            }
-            if (item.indexOf('.') > -1) {
-                item = item.split('.');
-                for (var i in item) {
-                    _string += '.' + item[i];
+        core: {},
+        extensions: {},
+        nomenclature: {
+            generator: "generator-id=\"{{type}}-{{unit}}\"",
+            template: "generator.template",
+            component: "generator.component",
+            widget: "generator.widget",
+            extension: "generator.extension",
+            data: "generator.data"
+        },
+        plugins: [
+            {
+                translator: {
+                    activate: true,
+                    observe: 'tr',
+                    languages: ['en_EN', 'fr_FR'],
+                    root: 'plugins/translator/',
+                    format: 'json'
                 }
-            } else {
-                _string += '.' + item;
             }
-            if (eval(_string) !== undefined) {
-                return eval(_string);
+        ],
+        template: {
+            form: {
+                button: "<button {{core.id}} {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{object.parent.content}}</button>",
+                checkbox: "<label for=\"{{object.parent.id}}\"><input {{core.id}} type=\"checkbox\" {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}}>{{object.parent.content}}</label>",
+                radiobutton: "<input type=\"radiobutton\" {{gen.id}} {{core.class}} {{core.attributes}}>",
+                input: "<input type=\"text\" {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} />",
+                textarea: "<textarea {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{object.parent.content}}</textarea>",
+                select: {
+                    parent: "<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</select>",
+                    child: "<option {{gen.id}} {{gen.type}} {{core.value}} {{core.class}}>{{object.child.content}}</option>"
+
+                }
+            },
+            layout: {
+                header: "<header {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{@include:layout.nav}}</header>",
+                footer: "<footer {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></footer>",
+                nav: "<nav {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></nav>",
+                list: {
+                    parent: "<ul {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</ul>",
+                    child: "<li {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</li>"
+
+                }
             }
         },
         ajax: {
@@ -214,6 +185,35 @@ var generator = {
                     context = context[namespaces[i]];
                 }
                 return context[func].apply(context, args);
+            },
+            getTemplate: function (item, type) {
+                /*
+                 gets the type of template object from the JSON and
+                 extracts the template string from the template
+                 object
+                 */
+                switch (type) {
+                    case 'object':
+                        var _string = generator.nomenclature.template;
+                        break;
+                    case 'component':
+                        _string = generator.nomenclature.component;
+                        break;
+                    case 'widget':
+                        _string = generator.nomenclature.widget;
+                        break;
+                }
+                if (item.indexOf('.') > -1) {
+                    item = item.split('.');
+                    for (var i in item) {
+                        _string += '.' + item[i];
+                    }
+                } else {
+                    _string += '.' + item;
+                }
+                if (eval(_string) !== undefined) {
+                    return eval(_string);
+                }
             },
             makeGeneratorID: function (type, unit) {
                 /*
@@ -377,7 +377,7 @@ var generator = {
                                 }
                             });
                         }
-                        if (typeof generator.getTemplate(_core[i].template, _core[i].type) == 'object') {
+                        if (typeof generator.helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
                             /*
                              we have an object so we know we're going to build a multi-level
                              item. This means we are expecting to see a parent item and one or
@@ -391,11 +391,11 @@ var generator = {
                                  let's make sure our options object is indeed an
                                  object. If it's not, alert the user.
                                  */
-                                throw new generator.formatException('Mismatch', 'The options value in the json is not an object');
+                                new generator.errors.alert('Mismatch', 'The options value in the json is not an object',true);
                             } else {
                                 var _parent = '',
                                     _child = '',
-                                    _baseObj = generator.getTemplate(_core[i].template, _core[i].type);
+                                    _baseObj = generator.helpers.getTemplate(_core[i].template, _core[i].type);
                                 $.each(_baseObj, function (key, value) {
                                     if (key == 'parent') {
                                         _parent = value;
@@ -422,7 +422,7 @@ var generator = {
                                 _structure += _result;
                             }
                         } else {
-                            var _template = generator.getTemplate(_core[i].template, _core[i].type);
+                            var _template = generator.helpers.getTemplate(_core[i].template, _core[i].type);
                             _template = _template.replace('{{object.parent.content}}', _core[i].content);
                             _template = _template.replace(/{{gen.id}}/g, _generatorID);
                             _template = _template.replace('{{gen.type}}', generator.helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
@@ -435,7 +435,7 @@ var generator = {
                             if (_template.indexOf('@include') > -1) {
                                 var _inclusion = _template.split('@include:')[1].split('}}')[0],
                                     _coreReference = _inclusion.split('.')[1],
-                                    _toAdd = generator.getTemplate(_inclusion),
+                                    _toAdd = generator.helpers.getTemplate(_inclusion),
                                     _toRemove = '{{@include:' + _inclusion + '}}';
                                 for (obj in generator.core) {
                                     if (generator.core[obj].type == _coreReference) {
@@ -526,7 +526,7 @@ var generator = {
                                 generator.extensions[_extensionName] = _extensionFormat;
                             }
                         } else {
-                            throw new generator.formatException('Type mismatch', 'An object was expected')
+                            new generator.errors.alert('Type mismatch', 'An object was expected',true)
                         }
                     }
                 } else {
@@ -554,7 +554,7 @@ var generator = {
                             generator.extensions[_extensionName] = _extensionFormat;
                         }
                     } else {
-                        throw new generator.formatException('Type mismatch', 'An object was expected')
+                        new generator.errors.alert('Type mismatch', 'An object was expected',true)
                     }
                 }
             } catch (e) {
@@ -594,48 +594,51 @@ var generator = {
                 }
             }
         },
-        loadScripts: function (obj, root, ext) {
-            var _root = root || generator.config.scripts.root;
-            var _ext = ext || generator.config.scripts.extension.format;
-            var _append = generator.config.scripts.extension.append;
-            /*
-             the obj parameter should be formatted as follows
-             [{
-             id:'demo',url:'demo',
-             functions:[
-             {call:'testAgain',
-             params:['string','or','array']
-             },{call:'test'}
-             ]}]
-             */
-            var _multiple = Array.isArray(obj);
-            if (_multiple == true) {
-                for (var m in obj) {
-                    var _tempArray = obj[m];
+        scripts:{
+            load: function (obj, root, ext) {
+                var _root = root || generator.config.scripts.root;
+                var _ext = ext || generator.config.scripts.extension.format;
+                var _append = generator.config.scripts.extension.append;
+                /*
+                 the obj parameter should be formatted as follows
+                 [{
+                 id:'demo',url:'demo',
+                 functions:[
+                 {call:'testAgain',
+                 params:['string','or','array']
+                 },{call:'test'}
+                 ]}]
+                 */
+                var _multiple = Array.isArray(obj);
+                if (_multiple == true) {
+                    for (var m in obj) {
+                        var _tempArray = obj[m];
+                    }
+                } else {
+                    _tempArray = obj;
                 }
-            } else {
-                _tempArray = obj;
-            }
-            if (typeof _tempArray == 'object') {
-                $.each(obj, function (key) {
-                    var _tempFunctions = obj[key].functions,
-                        _tempURL = _root + obj[key].url;
-                    _tempURL += _append == true ? '.' + _ext : '';
-                    $.getScript(_tempURL).done(function () {
-                        if (Array.isArray(_tempFunctions) == true) {
-                            for (var f in _tempFunctions) {
-                                generator.helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
+                if (typeof _tempArray == 'object') {
+                    $.each(obj, function (key) {
+                        var _tempFunctions = obj[key].functions,
+                            _tempURL = _root + obj[key].url;
+                        _tempURL += _append == true ? '.' + _ext : '';
+                        $.getScript(_tempURL).done(function () {
+                            if (Array.isArray(_tempFunctions) == true) {
+                                for (var f in _tempFunctions) {
+                                    generator.helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
+                                }
+                            } else {
+                                generator.helpers.executeFunctionByName(_tempFunctions.call, window, _tempFunctions.params);
                             }
-                        } else {
-                            generator.helpers.executeFunctionByName(_tempFunctions.call, window, _tempFunctions.params);
-                        }
-                    }).fail(function () {
-                        console.log('Unable to load ' + _tempURL);
-                    });
-                })
+                        }).fail(function () {
+                            console.log('Unable to load ' + _tempURL);
+                        });
+                    })
+                }
             }
         },
         init: {
+            rules:[],
             core: function (src, extensions, params) {
                 /*
                  the parameter extensions allows the user to load extensions into the
@@ -732,8 +735,20 @@ var generator = {
                 }
             }
         },
-        formatException: function (title, body) {
-            return title + ' : ' + body;
+        errors:{
+            log:[],
+            alert:function(title, body, write) {
+                write == true ? this.report(title, body) : '';
+                return title + ' : ' + body;
+            },
+            report:function(title, body) {
+                var _date = new Date();
+                this.log.push({
+                    date:_date,
+                    title:title,
+                    error:body
+                });
+            }
         }
     } || {};
 new generator.init.core('data/demo.json', false, [{plugin: 'translator', params: ['fr_FR', 1000]}]); // method using external JSON
