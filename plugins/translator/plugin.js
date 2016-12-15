@@ -8,7 +8,7 @@ var translator = {
     },
     handle:'',
     words:{},
-    _tempKey : '',
+    tempKey : '',
     setup:function(args){
         /*
         load arguments and params into the config
@@ -70,7 +70,7 @@ var translator = {
             $.each(translator.words[lang],function(key,value){
                 var _searchWord = key.toLowerCase();
                 if(_searchWord == word){
-                    translator._tempKey =  _library[key];
+                    translator.tempKey =  _library[key];
                 }
             })
         }
@@ -84,7 +84,7 @@ var translator = {
             var _activeObject = $(this);
             var _currentWord = $(this).html().toLowerCase();
             $.when(translator.getTranslationFromLibrary(_currentWord,translator.handle)).done(function(){
-                translator._tempKey !== undefined ? $(_activeObject).html(translator._tempKey) : '';
+                translator.tempKey !== undefined ? $(_activeObject).html(translator.tempKey) : '';
             });
         });
     }
