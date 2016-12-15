@@ -77,6 +77,45 @@ Iterative directives tell the inject function what to do with multiple instances
 - unique : returns only unique items in an array on a first come first served basis. 
 - unique.child : a mix of the each.child directive and the unique directive
 
+###Plugins
+
+Plugins can be scripted as separate JavaScript modules and imported into generator before the core function loads. This allows the user to apply filters or transformations to template objects without modifying the core object. Plugins can be loaded during initialization by calling the third generator.init parameter. The parameter syntax allows the user to specify which plugin to load and pass parameters to the plugin. Two parameters are used: the plugin name (and unique identifier) and an array of parameters to pass to the plugin. The syntax is as follows :
+
+```{plugin:'plugin_name',params:['string',numeric,{object:'value'}]}```
+
+If you want to load multiple plugins at once, wrap them in an array [{}].
+
+To include a plugin, add it to the generator.plugin array with all core parameters. Core parameters will be passed when the plugin is initialized. Refer to the following syntax.
+
+```
+plugin_name:{
+	activate:true,
+	root:'path_to_the_plugin_folder,
+	format:'file_format'
+}
+```
+
+Among the parameters listed in the code snippet above, only activate (boolean) is required. If no root is defined, the default path will be used (plugins/plugin_name/). The format parameter allows you to define what file format is expected by the function. 
+
+Plugins all reside under the plugins/ folder in the project root. The folder must be the same name as the plugin itself (i.e. for a plugin named 'material', you should see a folder named material/). NOTE : All plugins use the same file name plugin.js
+
+#####Writing plugins
+
+To get started, create a folder under the plugins/ folder with the name of your plugin. In this folder, all you will need is a plugin.js file. This file will contain all the functions and methods of your plugin. The plugin code must follow the following syntax rules.
+
+```
+var plugin_name = {
+    id : 'plugin_name',
+    config:{},
+    setup:function(args){},
+    init:function(){}
+}
+```
+
+You can add any other function within the core object and call it with ```plugin_name.function``` or ```this.function``` or nest functions within your core functions. 
+
+When the plugin is called by generator, the plugin.js file will be included via an ajax request. Once the file is loaded, generator will execute the setup function and pass the arguments defined by the user. All arguments and parameters will be added to the config object. Once that is done, the init function is called. All initial calls should be done in the init function. If you don't want your script to execute any functions when the plugin is loaded, leave the init function empty.
+
 ###Author and License 
 
 Generator is built and maintained by David Maser under GNU GENERAL PUBLIC LICENSE.
