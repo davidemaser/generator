@@ -66,10 +66,7 @@ var generator = {
                 root: 'plugins/translator/',
                 format:'json'
             }
-        },
-        {
-            boxer:{}
-         }
+        }
     ],
     core : {},
     config:{
@@ -198,6 +195,15 @@ var generator = {
         },
         destroyEventHandlers:function(obj,event){
             $(obj).unbind(event);
+        },
+        executeFunctionByName:function(functionName, context) {
+            var args = [].slice.call(arguments).splice(2);
+            var namespaces = functionName.split(".");
+            var func = namespaces.pop();
+            for(var i = 0; i < namespaces.length; i++) {
+                context = context[namespaces[i]];
+            }
+            return context[func].apply(context, args);
         },
         makeGeneratorID:function(type,unit){
             /*
@@ -544,6 +550,57 @@ var generator = {
             } catch (e) {
                 //
             }
+    },
+    loadScripts:function(obj){
+    /*
+    the obj parameter should be formatted as follows
+    [
+    	{
+    		id:'string',
+    		url:'string',
+    		functions:[
+    			{
+					call:'function.init',
+					params:'string or array'
+    			},
+    			{
+    				call:'other_function.fn'
+    			}
+    		]
+    	}
+    ]
+    */
+    var _multiple = Array.isArray(obj);
+    	if(typeof obj == 'object'){
+			$.each(obj,function(key,value)(){
+				$.getScript(obj[key].url).done(function(){
+					if(Array.isArray(obj[key].functions) == true){
+						/*
+						iterate over the array of functions or if it is not
+						an array call the node by it's name
+						*/
+						var _tempArray = obj[key].functions;
+						for(var f in _tempArray){
+							var _params = [];
+							if(Array.isArray(_tempArray[f].params){
+								//loop and merge all those into one array
+								var _tempParams = _tempArray[f].params;
+								for(var p in _tempParams){
+									_params.push(_tempParams[p]);
+								}
+							}else{
+								_params = _tempArray[f].params;
+							}
+							generator.helpers.executeFunctionByName(_tempArray[f].call, window, _params);
+						}
+					}else{
+			
+					}	
+				}).fail(function(){
+					console.log('Unable to load '+obj[key].url);
+				});
+			}
+    	}
     },
     init:function(src,extensions,params){
         /*
