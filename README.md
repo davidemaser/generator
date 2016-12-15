@@ -1,6 +1,6 @@
 # GENERATOR
 
-Generator is a templating engine built with jQuery that adopts a flexible approach to template based web components. The script can build an entire page structure from a JSON file or build specific components "a la carte". It is fully extendable, so new templates can be injected on the fly or added to the code itself. Generator can also be extended by creating plugins that are loaded into the core at runtime. 
+Generator is a templating engine built with jQuery that adopts a flexible approach to template based web components. The script can build an entire page structure from a JSON file or build specific components "a la carte". Generator can attach external scripts to specific template objects and load them when and if they are needed. The script is fully extendable, so new templates can be injected on the fly or added to the code itself. Generator can also be extended by creating plugins that are loaded into the core at runtime. 
 
 ###Use
 
