@@ -638,7 +638,9 @@ var generator = {
             }
         },
         init: {
-            rules:[],
+            rules:{
+                //add any init rules here
+            },
             core: function (src, extensions, params) {
                 /*
                  the parameter extensions allows the user to load extensions into the
