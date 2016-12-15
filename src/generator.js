@@ -592,8 +592,7 @@ var generator = {
                     var _lsItem = args.prefix == true ? generator.config.storage.prefix+args.id : args.id;
                     localStorage.removeItem(_lsItem);
                 }
-            },
-            display:function(args) {}
+            }
         },
         loadScripts: function (obj, root, ext) {
             var _root = root || generator.config.scripts.root;

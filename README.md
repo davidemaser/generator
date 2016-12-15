@@ -8,7 +8,7 @@ Assuming you are using jQuery, add the script to your page (in the head if you a
 
 ```<script src="src/generator.js"></script>```
 
-You can initialize the script with generator.init(). If you do so, remove the initialization call at the bottom of the main script. 
+You can initialize the script with generator.init.core(). If you do so, remove the initialization call at the bottom of the main script. 
 
 ###Templates
 
@@ -28,7 +28,7 @@ DOM elements or template objects can be assigned children. These children can in
 
 ###Extending templates
 
-You can extend the existing templates by injecting a template object on the fly or by loading them from an external JSON file. Generator has an 'extend' function that injects user built templates into the core object, allowing these new templates to be used by the function. Extensions can be bypassed by passing a boolean in the generator.init call (i.e : ```generator.init:function(src,false)```)
+You can extend the existing templates by injecting a template object on the fly or by loading them from an external JSON file. Generator has an 'extend' function that injects user built templates into the core object, allowing these new templates to be used by the function. Extensions can be bypassed by passing a boolean in the generator.init call (i.e : ```generator.init.core(src,false)```)
 
 Extensions use the following schema. Generator uses two sorts of templates; direct code and nested. The difference between the two is the presence of child nodes. Take for example a button and a list. A button has no inherent child nodes whereas a list is comprised of a ul or ol tag and one or many li tags. A list is a nested template object. Nested template objects can call their child into a specific position of their code (see example below)
 
