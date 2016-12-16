@@ -18,26 +18,27 @@ module.exports = function (grunt) {
         jshint: {
             options: {
                 curly: true,
-                eqeqeq: true,
+                eqeqeq: false,
                 immed: true,
                 latedef: true,
                 newcap: true,
                 noarg: true,
                 sub: true,
                 undef: true,
-                unused: true,
-                boss: true,
-                eqnull: true,
+                unused: false,
+                boss: false,
+                eqnull: false,
                 browser: true,
                 globals: {
                     jQuery:true,
-                    $: false,
-                    Backbone: true,
-                    Backgrid: true,
+                    $: true,
                     _: true,
                     console:true,
                     core:true
                 }
+            },
+            core: {
+                src: ['src/*.js']
             }
         },
          watch: {
@@ -58,5 +59,5 @@ module.exports = function (grunt) {
 
 
     // Default task.
-    grunt.registerTask('default', ['uglify', 'watch']);
+    grunt.registerTask('default', ['jshint', 'uglify', 'watch']);
 };

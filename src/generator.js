@@ -8,6 +8,7 @@
  * https://github.com/davidemaser/generator and make a pull
  * request
  */
+/*jshint funcscope:true*/
 var generator = {
         accept: {
             object: ['object', 'button', 'div', 'section', 'ul', 'li', 'list', 'nav', 'form', 'radio', 'select', 'checkbox', 'footer', 'header', 'textarea'],
@@ -118,7 +119,7 @@ var generator = {
                 var ins = arr || null;
                 if (ins !== null) {
                     if (ins[3] !== undefined && ins[3] !== null && ins[3] !== '') {
-                        ins[3] = ins[3]
+                        ins[3] = ins[3];
                     } else {
                         ins[3] = null;
                     }
@@ -141,7 +142,7 @@ var generator = {
                             generator.ajax.dataHolder = data;
                         }, error: function () {
                             generator.errors.alert('JSON Error','Unable to load JSON',true);
-                            console.log('unable to load JSON')
+                            console.log('unable to load JSON');
                         }
                     })
                 ).done(function () {
@@ -158,7 +159,7 @@ var generator = {
                             _data = _data.replace(_junk, '');
                         }
                     }
-                    if (_parse == true) {
+                    if (_parse === true) {
                         _data = JSON.parse(_data);
                     }
                     return _data;
@@ -211,7 +212,7 @@ var generator = {
                             '</div>';
                         _confirm = _confirm.replace('{{confirm.title}}',_confirmTitle).replace('{{confirm.message}}',_confirmMessage).replace('{{confirm.buttons}}',generator.helpers.buildButtons(_confirmButtons,_required,_options));
                         $(this.config.parent).prepend(_confirm);
-                        _animate == true ? $('.gen_confirm').animate({opacity:1},this.config.animate.delay) : $('.gen_confirm').attr('style','');
+                        _animate === true ? $('.gen_confirm').animate({opacity:1},this.config.animate.delay) : $('.gen_confirm').attr('style','');
                     }
                 }
             },
@@ -236,7 +237,7 @@ var generator = {
                         $(this.config.parent).prepend(_modal).on('click','button[data-action="close"]',function(){
                             generator.helpers.removeDomObjects('gen_modal');
                         });
-                        _animate == true ? $('.gen_modal').animate({opacity:1},this.config.animate.delay) : $('.gen_modal').attr('style','');
+                        _animate === true ? $('.gen_modal').animate({opacity:1},this.config.animate.delay) : $('.gen_modal').attr('style','');
                     }
                 }
              }
@@ -247,7 +248,7 @@ var generator = {
                     $.each(children, function (key, value) {
                         $(parent).append(value);
                         //@todo this has to be done soon or descoped
-                    })
+                    });
                 }
             },
             checkObjectType:function(elem){
@@ -268,7 +269,7 @@ var generator = {
                  proper prefix
                  */
                 var _refuse = ['body','html','head'];//list of items you don't want the script to touch
-                if(Array.isArray(obj) == true){
+                if(Array.isArray(obj) === true){
                     for(var o in obj){
                         var _object = this.checkObjectType(obj[o]);
                         $.inArray(obj[o],_refuse)  > -1 ? console.log('that item can not be removed') : $(_object).remove();
@@ -293,7 +294,7 @@ var generator = {
                     }
                     return _buttonString;
                 }else{
-                    generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false)
+                    generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false);
                 }
             },
             delayExecution: function (obj) {
@@ -442,8 +443,9 @@ var generator = {
                 if (typeof obj == 'object') {
                     _styleString += '#' + parent + '{\n';
                     for (var o in obj) {
-                        if (o !== 'type' && o !== 'url')
+                        if (o !== 'type' && o !== 'url') {
                             _styleString += o + ':' + obj[o] + ';\n';
+                        }
                     }
                     _styleString += '}\n';
                     _styleString += '</style>';
@@ -478,7 +480,7 @@ var generator = {
 
             function LoadScript(link) {
                 $.getScript(link, function () {
-                    script.init();
+                    //
                 });
             }
 
@@ -508,7 +510,7 @@ var generator = {
                                 _styleArray = [];
                             $.each(_core[i].style, function (key, value) {
                                 if (key == 'type' && value == 'file') {
-                                    LoadStyleSheet(_core[i].style['url']);
+                                    new LoadStyleSheet(_core[i].style['url']);
                                 } else if (key == 'type' && value == 'inline') {
                                     generator.helpers.makeInlineStyle(_core[i].style, _core[i].id);
                                 } else {
@@ -556,7 +558,7 @@ var generator = {
                                 _result = _result.replace('{{core.attributes}}', _attributes);
                                 _result = _result.replace('{{gen.type}}', generator.helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
                                 _result = _result.replace(/{{gen.id}}/g, generator.helpers.makeGeneratorID(_core[i].type, i));
-                                _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
+                                _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
                                 _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
                                 _structure += _result;
                             }
@@ -569,8 +571,8 @@ var generator = {
                             _template = _template.replace(/{{object.parent.id}}/g, _core[i].id);
                             _template = _template.replace('{{core.id}}', _core[i].id !== null ? generator.helpers.makeObjectID(_core[i].id) : '');
                             _template = _template.replace('{{core.class}}', _core[i].class !== null ? generator.helpers.makeObjectClass(_core[i].class) : '');
-                            _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
-                            _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '')
+                            _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
+                            _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '');
                             if (_template.indexOf('@include') > -1) {
                                 var _inclusion = _template.split('@include:')[1].split('}}')[0],
                                     _coreReference = _inclusion.split('.')[1],
@@ -590,7 +592,7 @@ var generator = {
                         _structure += '<' + _core[i].type + ' ' + _generatorID;
                         _structure += _core[i].class !== '' && _core[i].class !== undefined ? generator.helpers.makeObjectClass(_core[i].class) : '';
                         _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
-                        _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled == true ? ' disabled' : '';
+                        _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? ' disabled' : '';
                         if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
                             $.each(_core[i].attributes, function (key, value) {
                                 if (_core[i].attributes[key] !== '' && _core[i].attributes[key] !== undefined) {
@@ -633,7 +635,7 @@ var generator = {
              }
              */
             try {
-                if (Array.isArray(obj) == true) {
+                if (Array.isArray(obj) === true) {
                     /*
                      if the user is registering an array of extensions
                      let's loop through the array and register them
@@ -644,28 +646,28 @@ var generator = {
                         if (typeof obj == 'object') {
                             var _extensionName = '',
                                 _extensionFormat = {};
-                            for (var p in objArray) {
-                                if (objArray.hasOwnProperty(p)) {
-                                    _extensionName += p === 'identifier' ? objArray[p] : '';
-                                    if (p == 'parent') {
-                                        _extensionFormat[p] = objArray[p];
+                            for (var e in objArray) {
+                                if (objArray.hasOwnProperty(e)) {
+                                    _extensionName += e === 'identifier' ? objArray[e] : '';
+                                    if (e == 'parent') {
+                                        _extensionFormat[e] = objArray[e];
                                     }
-                                    if (p == 'child') {
-                                        _extensionFormat[p] = objArray[p];
+                                    if (e == 'child') {
+                                        _extensionFormat[e] = objArray[e];
                                     }
-                                    if (p == 'code') {
-                                        _extensionFormat = objArray[p];
+                                    if (e == 'code') {
+                                        _extensionFormat = objArray[e];
                                     }
                                 }
                             }
                             if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
-                                alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
+                                window.alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
                             } else {
                                 generator.accept.extensions.push(_extensionName);
                                 generator.extensions[_extensionName] = _extensionFormat;
                             }
                         } else {
-                            new generator.errors.alert('Type mismatch', 'An object was expected',true)
+                            new generator.errors.alert('Type mismatch', 'An object was expected',true);
                         }
                     }
                 } else {
@@ -687,13 +689,13 @@ var generator = {
                             }
                         }
                         if (generator.extensions[_extensionName] !== undefined && generator.extensions[_extensionName] !== '') {
-                            alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
+                            window.alert('The extension ' + _extensionName.toUpperCase() + ' has already been registered');
                         } else {
                             generator.accept.extensions.push(_extensionName);
                             generator.extensions[_extensionName] = _extensionFormat;
                         }
                     } else {
-                        new generator.errors.alert('Type mismatch', 'An object was expected',true)
+                        new generator.errors.alert('Type mismatch', 'An object was expected',true);
                     }
                 }
             } catch (e) {
@@ -715,20 +717,20 @@ var generator = {
                 return typeof(Storage) !== 'undefined';
             },
             load:function(args) {
-                if(this.supported() == true){
-                    var _lsItem = args.prefix == true ? generator.config.storage.prefix+args.id : args.id;
+                if(this.supported() === true){
+                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
                     return localStorage.getItem(_lsItem);
                 }
             },
             save:function(args) {
-                if(this.supported() == true){
-                    var _lsItem = args.prefix == true ? generator.config.storage.prefix+args.id : args.id;
+                if(this.supported() === true){
+                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
                     localStorage.setItem(_lsItem,args.data);
                 }
             },
             purge:function(args) {
-                if(this.supported() == true) {
-                    var _lsItem = args.prefix == true ? generator.config.storage.prefix+args.id : args.id;
+                if(this.supported() === true) {
+                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
                     localStorage.removeItem(_lsItem);
                 }
             }
@@ -749,7 +751,7 @@ var generator = {
                  ]}]
                  */
                 var _multiple = Array.isArray(obj);
-                if (_multiple == true) {
+                if (_multiple === true) {
                     for (var m in obj) {
                         var _tempArray = obj[m];
                     }
@@ -760,9 +762,9 @@ var generator = {
                     $.each(obj, function (key) {
                         var _tempFunctions = obj[key].functions,
                             _tempURL = _root + obj[key].url;
-                        _tempURL += _append == true ? '.' + _ext : '';
+                        _tempURL += _append === true ? '.' + _ext : '';
                         $.getScript(_tempURL).done(function () {
-                            if (Array.isArray(_tempFunctions) == true) {
+                            if (Array.isArray(_tempFunctions) === true) {
                                 for (var f in _tempFunctions) {
                                     generator.helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
                                 }
@@ -772,7 +774,7 @@ var generator = {
                         }).fail(function () {
                             console.log('Unable to load ' + _tempURL);
                         });
-                    })
+                    });
                 }
             }
         },
@@ -795,7 +797,7 @@ var generator = {
                  */
                 $.when(generator.init.plugins(params), generator.init.extensions(extensions)).done(function () {
                     if (typeof src == 'object') {
-                        generator.build(src)
+                        generator.build(src);
                     } else {
                         $.ajax({
                             url: src,
@@ -816,7 +818,7 @@ var generator = {
             },
             extensions: function (obj) {
                 if (obj !== false) {
-                    if (obj == '' || obj == undefined) {
+                    if (obj === '' || obj === undefined) {
                         obj = generator.config.extensions.src.root;
                     }
                     if (obj !== '' && obj !== null && obj !== undefined) {
@@ -828,16 +830,16 @@ var generator = {
                             error: function () {
                                 generator.extend(obj);
                             }
-                        })
+                        });
                     }
                 }
             },
             plugins: function (params) {
                 var _multiple = Array.isArray(params);
-                params = _multiple == true && params.length == 1 ? params[0] : params; //if the params are formatted as an array but only contain one object
+                params = _multiple === true && params.length == 1 ? params[0] : params; //if the params are formatted as an array but only contain one object
                 var _tempObject = {};
-                if (_multiple == true) {
-                    for (p in params) {
+                if (_multiple === true) {
+                    for (var p in params) {
                         _tempObject[params[p].plugin] = params[p];
                     }
                 } else {
@@ -848,11 +850,11 @@ var generator = {
                         if (key === match) {
                             return value.params;
                         }
-                    })
+                    });
                 }
                 var _list = generator.plugins;
-                for (var p in _list) {
-                    $.each(_list[p], function (key, value) {
+                for (var l in _list) {
+                    $.each(_list[l], function (key, value) {
                         if (value.root !== undefined) {
                             var _root = value.root;
                             $.getScript(_root + 'plugin.js?p=' + key).done(function () {
@@ -868,7 +870,7 @@ var generator = {
         errors:{
             log:[],
             alert:function(title, body, write) {
-                write == true ? this.report(title, body) : '';
+                write === true ? this.report(title, body) : false;
                 return title + ' : ' + body;
             },
             report:function(title, body) {
@@ -965,7 +967,7 @@ new generator.init.core('data/demo.json', false, [{plugin: 'translator', params:
  "border-right": "1px solid #000"
  },
  "events": {
- "click": "alert('bam bam')"
+ "click": "window.alert('bam bam')"
  },
  "options": [
  {
