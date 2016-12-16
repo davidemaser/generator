@@ -277,15 +277,15 @@ var generator = {
             },
             buildButtons:function(param,required,options){
                 var _buttonString = '';
-                var _button = '<div class="button">{{modal.button.item}}</div>';
+                var _button = '<div class="button">{{gen.button}}</div>';
                 if(typeof param == 'object'){
                     for(var p in param){
                         if(p !== 'close' && $.inArray(p,options) > -1){
                             var _thisButton = '<button type="'+p+'" data-action="'+param[p].action+'">'+param[p].label+'</button>';
-                            _buttonString += _button.replace('{{modal.button.item}}',_thisButton);
+                            _buttonString += _button.replace('{{gen.button}}',_thisButton);
                         }else if(p === 'close' && $.inArray(p,required) > -1){
                             _thisButton = '<button type="'+p+'" data-action="close">'+param[p].label+'</button>';
-                            _buttonString += _button.replace('{{modal.button.item}}',_thisButton);
+                            _buttonString += _button.replace('{{gen.button}}',_thisButton);
                         }
                     }
                     return _buttonString;
@@ -293,11 +293,25 @@ var generator = {
                     generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false)
                 }
             },
-            delayExecution: function (delay, callback) {
-                window.setTimeout(callback(), delay);
+            delayExecution: function (obj) {
+                /*
+                format :
+                {
+                    delay:1,
+                    callback:'string'
+                }
+                 */
+                window.setTimeout(obj.callback(), obj.delay);
             },
-            destroyEventHandlers: function (obj, event) {
-                $(obj).unbind(event);
+            destroyEventHandlers: function (obj) {
+                /*
+                format :
+                {
+                   object:'string',
+                   event:'string'
+                }
+                 */
+                $(obj.object).unbind(obj.event);
             },
             executeFunctionByName: function (functionName, context) {
                 var args = [].slice.call(arguments).splice(2);
