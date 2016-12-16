@@ -51,11 +51,14 @@ These tags (from hereon in we'll call them generator tags) are the building bloc
 - gen.id [string-generated]: builds a unique id for EACH generator object
 - gen.type [string-generated] : displays the generator object type (useful for styling and scripted animations)
 - gen.styles [object-array-user] : allows inline style to be injected into the html object
+- gen.button [string-user] : used by the dialog.modal and dialog.confirm functions, this is a placeholder for button html. 
 - core.class [string-user] : allows you to pass a class to the html object. To add multiple classes to an object, format as you would in html (i.e foo bar class)
 - core.id [string-user]: allows you to pass a unique ID to the html object
 - core.attributes [object-array-user] : allows you to pass attributes in the html object
 - object.parent.content [string-user] : injects content (as html) from the parent attribute of a nested template into the tag
 - object.child.content [object-array-user] : injects content (as html) from the child attribute(s) of a nested template into the tag
+- modal [string-user] : placeholder used by the dialog.modal function.
+- confirm [string-user] : placeholder used by the dialog.confirm function.
 
 -> Directives
 
