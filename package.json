@@ -1,0 +1,19 @@
+{
+  "name": "generator",
+  "version": "0.5.0",
+  "description": "Extendable and scriptable templating engine built in jQuery",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidemaser/generator.git"
+  },
+  "author": "David Maser",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/davidemaser/generator/issues"
+  },
+  "homepage": "https://github.com/davidemaser/generator#readme"
+}

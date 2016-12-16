@@ -134,14 +134,17 @@ var generator = {
                  allows you to remove specific elements from the content.
                  remove parameter can be a string or array
                  */
-                $.when($.ajax({
-                    url: path,
-                    success: function (data) {
-                        generator.ajax.dataHolder = data;
-                    }, error: function () {
-                        console.log('unable to load JSON')
-                    }
-                })).done(function () {
+                $.when(
+                    $.ajax({
+                        url: path,
+                        success: function (data) {
+                            generator.ajax.dataHolder = data;
+                        }, error: function () {
+                            generator.errors.alert('JSON Error','Unable to load JSON',true);
+                            console.log('unable to load JSON')
+                        }
+                    })
+                ).done(function () {
                     var _data = JSON.stringify(generator.ajax.dataHolder),
                         _parse = parse || false;
                     if (remove !== '' && remove !== undefined && remove !== null) {
