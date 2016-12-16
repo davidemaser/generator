@@ -101,6 +101,7 @@ var generator = {
         ajax: {
             dataHolder: {},
             logData: function () {
+                /* @todo function in process */
                 console.log(generator.ajax.dataHolder);
             },
             dataToObject: function (arr, obj, callback) {
@@ -122,7 +123,7 @@ var generator = {
                         ins[3] = null;
                     }
                     $.when(generator.ajax.dataCleanAndParse(ins[0], ins[1], ins[2], ins[3])).done(function () {
-                        callback;
+                        callback();
                     });
                 }
             },
@@ -162,6 +163,81 @@ var generator = {
                 callback();
             }
         },
+        dialogs:{
+            config:{
+                animate:{
+                    activate:true,
+                    delay:500
+                },
+                position:'front',
+                parent:'body'
+            },
+            /*
+            args format :
+            {
+                type:'modal',
+                title:'string',
+                message:'string',
+                buttons:{
+                    yes:{label:'string',action:'function'},
+                    no:{label:'string',action:'function'},
+                    close:{label:'string'}
+                },
+                animate:false
+            }
+             */
+            alert:function(args){
+
+            },
+            confirm:function(args){
+                generator.helpers.removeDomObjects(['gen_modal','gen_confirm']);
+                var _animate = args.animate !== undefined ? args.animate : this.config.animate.activate;
+                var _required = ['yes','no'],
+                    _options = [];
+                if(typeof args == 'object'){
+                    if(args.type !== undefined && args.type === 'alert'){
+                        var _confirmTitle = args.title,
+                            _confirmMessage = args.message,
+                            _confirmButtons = args.buttons,
+                            _confirm = '<div class="gen_confirm overlay" style="opacity:0">' +
+                            '<div class="gen_confirm inner">' +
+                            '<div class="gen_confirm title">{{confirm.title}}</div>' +
+                            '<div class="gen_confirm message">{{confirm.message}}</div>' +
+                            '<div class="gen_confirm buttons">{{confirm.buttons}}</div>' +
+                            '</div>' +
+                            '</div>';
+                        _confirm = _confirm.replace('{{confirm.title}}',_confirmTitle).replace('{{confirm.message}}',_confirmMessage).replace('{{confirm.buttons}}',generator.helpers.buildButtons(_confirmButtons,_required,_options));
+                        $(this.config.parent).prepend(_confirm);
+                        _animate == true ? $('.gen_confirm').animate({opacity:1},this.config.animate.delay) : $('.gen_confirm').attr('style','');
+                    }
+                }
+            },
+            modal:function(args){
+                generator.helpers.removeDomObjects(['gen_modal','gen_confirm']);
+                var _animate = args.animate !== undefined ? args.animate : this.config.animate.activate;
+                var _required = ['close'],
+                    _options = ['yes','no'];
+                if(typeof args == 'object'){
+                    if(args.type !== undefined && args.type === 'modal'){
+                        var _modalTitle = args.title,
+                            _modalMessage = args.message,
+                            _modalButtons = args.buttons,
+                            _modal = '<div class="gen_modal overlay" style="opacity:0">' +
+                            '<div class="gen_modal inner">' +
+                            '<div class="gen_modal title">{{modal.title}}</div>' +
+                            '<div class="gen_modal message">{{modal.message}}</div>' +
+                            '<div class="gen_modal buttons">{{modal.buttons}}</div>' +
+                            '</div>' +
+                            '</div>';
+                        _modal = _modal.replace('{{modal.title}}',_modalTitle).replace('{{modal.message}}',_modalMessage).replace('{{modal.buttons}}',generator.helpers.buildButtons(_modalButtons,_required,_options));
+                        $(this.config.parent).prepend(_modal).on('click','button[data-action="close"]',function(){
+                            generator.helpers.removeDomObjects('gen_modal');
+                        });
+                        _animate == true ? $('.gen_modal').animate({opacity:1},this.config.animate.delay) : $('.gen_modal').attr('style','');
+                    }
+                }
+             }
+        },
         helpers: {
             adoptChidren: function (parent, children) {
                 if (typeof children == 'object') {
@@ -169,6 +245,52 @@ var generator = {
                         $(parent).append(value);
                         //@todo this has to be done soon or descoped
                     })
+                }
+            },
+            checkObjectType:function(elem){
+                if($(elem).length !== 0) {
+                    return elem;
+                }else if($('.'+elem).length !== 0) {
+                    return '.'+elem;
+                }else if($('#'+elem).length !== 0) {
+                    return '#'+elem;
+                }
+            },
+            removeDomObjects:function(obj){
+                /*
+                 removes a specific object or an array of objects
+                 from the dom tree. There is no need to specify
+                 if the object is an html tag, an ID or a class
+                 as the script will check that and append the
+                 proper prefix
+                 */
+                var _refuse = ['body','html','head'];//list of items you don't want the script to touch
+                if(Array.isArray(obj) == true){
+                    for(var o in obj){
+                        var _object = this.checkObjectType(obj[o]);
+                        $.inArray(obj[o],_refuse)  > -1 ? console.log('that item can not be removed') : $(_object).remove();
+                    }
+                }else{
+                    _object = this.checkObjectType(obj);
+                    $.inArray(obj,_refuse)  > -1 ? console.log('that item can not be removed') : $(_object).remove();
+                }
+            },
+            buildButtons:function(param,required,options){
+                var _buttonString = '';
+                var _button = '<div class="button">{{modal.button.item}}</div>';
+                if(typeof param == 'object'){
+                    for(var p in param){
+                        if(p !== 'close' && $.inArray(p,options) > -1){
+                            var _thisButton = '<button type="'+p+'" data-action="'+param[p].action+'">'+param[p].label+'</button>';
+                            _buttonString += _button.replace('{{modal.button.item}}',_thisButton);
+                        }else if(p === 'close' && $.inArray(p,required) > -1){
+                            _thisButton = '<button type="'+p+'" data-action="close">'+param[p].label+'</button>';
+                            _buttonString += _button.replace('{{modal.button.item}}',_thisButton);
+                        }
+                    }
+                    return _buttonString;
+                }else{
+                    generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false)
                 }
             },
             delayExecution: function (delay, callback) {
