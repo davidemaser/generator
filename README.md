@@ -14,7 +14,7 @@ You can initialize the script with generator.init.core(). If you do so, remove t
 
 The core function has a few built in templates to play around with. These can be found in the generator.template object. See below for a list of parameters used by generator. 
 
-#####Attached Events
+#####Attaching Events
 
 Each template object can have events attached to it. The events are bound to the objects unique generator id that is created when generator executes. Events are passed to the script as an object and when the template object is created, each event will be attached to that object and the handler registered. Events use the '$.on' directive. To add custom events to a template object after it is loaded, you can call it by it's ID or generator ID ```$(THE_ID).event(function(){})```. Events are unregistered when the template object is removed from the DOM. You can use the helper function destroyEventHandlers() to removed attached events ```generator.helpers.destroyEventHandlers('[generator-id="object-1"]','click')```
 
@@ -118,6 +118,24 @@ var plugin_name = {
 You can add any other function within the core object and call it with ```plugin_name.function``` or ```this.function``` or nest functions within your core functions. 
 
 When the plugin is called by generator, the plugin.js file will be included via an ajax request. Once the file is loaded, generator will execute the setup function and pass the arguments defined by the user. All arguments and parameters will be added to the config object. Once that is done, the init function is called. All initial calls should be done in the init function. If you don't want your script to execute any functions when the plugin is loaded, leave the init function empty.
+
+###Utility Functions
+
+Generator has some handy utility functions that handle everything from data loading and manipulation to dialog creation to local storage manipulation. These functions allow you to add functionality to template objects using objects scripted in the core. Generator's ajax object allows you to load, parse and modify JSON data in a semantic, objected oriented format. A list of utility objects can be found below.
+
+- ajax [generator.ajax] : loads, stores and manipulates JSON data.
+- dialogs [generator.dialogs] : creates modal or confirmation dialogs. 
+- storage [generator.storage] : creates, reads and removes local storage objects.
+- scripts [generator.scripts] : loads external javascript files and executes user defined functions.
+- errors [generator.errors] : alerts and reports errors in the core execution. 
+
+NOTE: Utility functions are a work in progress and will continue to be extended during the lifetime of the Generator project.
+
+#####Helpers
+
+Helpers are core objects that execute functions to add or manipulate other generator objects.  
+
+NOTE: Helper functions are a work in progress and will continue to be extended during the lifetime of the Generator project.
 
 ###Author and License 
 
