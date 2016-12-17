@@ -124,6 +124,9 @@ When the plugin is called by generator, the plugin.js file will be included via 
 Generator has some handy utility functions that handle everything from data loading and manipulation to dialog creation to local storage manipulation. These functions allow you to add functionality to template objects using objects scripted in the core. Generator's ajax object allows you to load, parse and modify JSON data in a semantic, objected oriented format. A list of utility objects can be found below.
 
 - ajax [generator.ajax] : loads, stores and manipulates JSON data.
+
+Clean and parse function. Loads external JSON file and stores the data in an ajax data object. Data is parsed and unwanted elements removed. Object is returned by the function and/or stored to the ajax data object. ```generator.ajax.cleanAndParse(path:string, parse:boolean, remove:object, callback:function)``` 
+
 - dialogs [generator.dialogs] : creates modal or confirmation dialogs. 
 - storage [generator.storage] : creates, reads and removes local storage objects.
 - scripts [generator.scripts] : loads external javascript files and executes user defined functions.
