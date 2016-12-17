@@ -467,6 +467,17 @@ var generator = {
                 $(parent).append(_item);
             }
         },
+        index:{
+        	schema:{},
+        	build:function(id){
+        	/*
+        	function builds an index of all generator objects on the page
+        	*/
+        		$.each($(id),function(){
+        			generator.index.schema[$(this).attr('generator-id')] = $(this).html();
+        		}
+        	}
+        },
         build: function (obj) {
             /*
              main function builds each component with the data in the
