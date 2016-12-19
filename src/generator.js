@@ -108,9 +108,9 @@ var generator = {
             dataToObject: function (arr, obj, callback) {
                 /*
                  function takes parameter arr in the form of an array and
-                 calls the dataCleanAndParse function to collect and store
+                 calls the ajax.init function to collect and store
                  data. The parameters in the arr array correspond to the
-                 parameters required by dataCleanAndParse. The collected
+                 parameters required by ajax.init. The collected
                  data is then input into the object (obj)
                  # arr array schema
                  # ['json.file',boolean,'array or string',callback.function]
@@ -123,48 +123,111 @@ var generator = {
                     } else {
                         ins[3] = null;
                     }
-                    $.when(generator.ajax.dataCleanAndParse(ins[0], ins[1], ins[2], ins[3])).done(function () {
+                    $.when(generator.ajax.init(ins[0], ins[1], ins[2], ins[3])).done(function () {
                         callback();
                     });
                 }
             },
-            dataCleanAndParse: function (path, parse, remove, callback) {
+            chunk:{
+                status:{},
+                dataHolder:{},
+                set:function(obj,length){
+                    try {
+                        obj = obj == null ? generator.ajax.dataHolder : obj;
+                        /*
+                         Splits generator.ajax.dataHolder content into smaller chunks, defined by the user.
+                         Chunks will be stored into the chunk objects own dataHolder object
+                         */
+                        Object.defineProperty(Array.prototype, 'chunk_size', {
+                            value: function (chunkSize) {
+                                var array = this;
+                                return [].concat.apply([],
+                                    array.map(function (elem, i) {
+                                        return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
+                                    })
+                                );
+                            },
+                            configurable: true
+                        });
+                        var _obj = JSON.parse(obj);
+                        var _objCore = _obj.core;
+                        var _chunk = [];
+                        for (var o in _objCore) {
+                            _chunk.push(_objCore[o]);
+                        }
+                        var _tempArray = _chunk.chunk_size(length);
+                        var _chunkCount = 0;
+                        $.each(_tempArray, function (key, value) {
+                            generator.ajax.chunk.dataHolder[key] = value;
+                            _chunkCount++;
+                        });
+                        generator.ajax.chunk.status['available'] = true;
+                        generator.ajax.chunk.status['chunk count'] = _chunkCount;
+                    }catch(e){
+                        new generator.errors.alert('Function Unavailable','The function you are trying to call does not have required attributes. Load JSON data before running the ajax.chunk.set function',true,'ajax.chunk.set')
+                    }
+                },
+                get:function(start,length){
+                    var _available = generator.ajax.chunk.status.available;
+                    start = start || 0;
+                    length = length || 0;
+                    var _tempChunks = [];
+                    if(_available !== undefined && _available === true) {
+                        if (length !== 0 && length !== undefined) {
+                            for (var i = start; i < length; i++) {
+                                generator.ajax.chunk.dataHolder[i] !== undefined ? _tempChunks.push(generator.ajax.chunk.dataHolder[i]) : false;
+                            }
+                        } else {
+                            for (var c in generator.ajax.chunk.dataHolder) {
+                                generator.ajax.chunk.dataHolder[c] !== undefined ? _tempChunks.push(generator.ajax.chunk.dataHolder[c]) : false;
+                            }
+                        }
+                        return _tempChunks;
+                    }else{
+                        new generator.errors.alert('Object Unavailable','The object you are trying to access does not exist. Run the chunk.set function',true,'ajax.chunk.get')
+                    }
+                }
+            },
+            init: function (path, parse, remove, chunk) {
                 /*
                  function collects and stores JSON data in a global object.
                  The function also cleans and parses the JSON data. This
                  allows you to remove specific elements from the content.
                  remove parameter can be a string or array
                  */
-                $.when(
-                    $.ajax({
-                        url: path,
-                        success: function (data) {
-                            generator.ajax.dataHolder = data;
-                        }, error: function () {
-                            generator.errors.alert('JSON Error','Unable to load JSON',true);
-                            console.log('unable to load JSON');
-                        }
-                    })
-                ).done(function () {
-                    var _data = JSON.stringify(generator.ajax.dataHolder),
+                function parseSource(src){
+                    /* @todo should the parseSource function be moved to the helpers object */
+                    var _data = JSON.stringify(src),
                         _parse = parse || false;
                     if (remove !== '' && remove !== undefined && remove !== null) {
-                        if (typeof remove == 'object' && remove !== undefined && remove !== null && remove !== '') {
+                        if (typeof remove == 'object') {
                             for (var r in remove) {
                                 var _junk = new RegExp(remove[r], 'g');
                                 _data = _data.replace(_junk, '');
                             }
-                        } else if (typeof remove !== 'object' && remove !== undefined && remove !== null && remove !== '') {
+                        } else if (typeof remove !== 'object') {
                             _junk = new RegExp(remove, 'g');
                             _data = _data.replace(_junk, '');
                         }
                     }
-                    if (_parse === true) {
-                        _data = JSON.parse(_data);
+                    if (_parse == true) {
+                        generator.ajax.dataHolder = JSON.parse(_data);
+                    } else {
+                        generator.ajax.dataHolder = _data;
                     }
-                    return _data;
+                }
+                $.ajax({
+                        url: path,
+                        success: function (data) {
+                            generator.ajax.dataHolder = data;
+                        }, error: function () {
+                            generator.errors.alert('JSON Error','Unable to load JSON. Check your path parameters',true,'ajax.init');
+                        }
+                }).done(function() {
+                    parseSource(generator.ajax.dataHolder);
+                }).done(function() {
+                    chunk == true ? generator.ajax.chunk.set(null,5) : false; //chunks the data if true
                 });
-                callback();
             }
         },
         dialogs:{
@@ -294,7 +357,7 @@ var generator = {
                     }
                     return _buttonString;
                 }else{
-                    generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false);
+                    generator.errors.alert('Type Mismatch','The function was expecting an object but did not receive one',false,'buildButtons');
                 }
             },
             delayExecution: function (obj) {
@@ -543,7 +606,7 @@ var generator = {
                                  let's make sure our options object is indeed an
                                  object. If it's not, alert the user.
                                  */
-                                new generator.errors.alert('Mismatch', 'The options value in the json is not an object',true);
+                                new generator.errors.alert('Mismatch', 'The options value in the json is not an object',true,'build');
                             } else {
                                 var _parent = '',
                                     _child = '',
@@ -678,7 +741,7 @@ var generator = {
                                 generator.extensions[_extensionName] = _extensionFormat;
                             }
                         } else {
-                            new generator.errors.alert('Type mismatch', 'An object was expected',true);
+                            new generator.errors.alert('Type mismatch', 'An object was expected',true,'extend');
                         }
                     }
                 } else {
@@ -706,7 +769,7 @@ var generator = {
                             generator.extensions[_extensionName] = _extensionFormat;
                         }
                     } else {
-                        new generator.errors.alert('Type mismatch', 'An object was expected',true);
+                        new generator.errors.alert('Type mismatch', 'An object was expected',true,'extend');
                     }
                 }
             } catch (e) {
@@ -880,16 +943,18 @@ var generator = {
         },
         errors:{
             log:[],
-            alert:function(title, body, write) {
-                write === true ? this.report(title, body) : false;
+            alert:function(title, body, write, caller) {
+                write === true ? generator.errors.report(title, body, caller) : '';
+                console.warn(title + ' : ' + body);
                 return title + ' : ' + body;
             },
-            report:function(title, body) {
+            report:function(title, body,caller) {
                 var _date = new Date();
                 this.log.push({
                     date:_date,
                     title:title,
-                    error:body
+                    error:body,
+                    caller:caller
                 });
             }
         }
