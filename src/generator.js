@@ -473,9 +473,9 @@ var generator = {
         	/*
         	function builds an index of all generator objects on the page
         	*/
-        		$.each($(id),function(){
-        			generator.index.schema[$(this).attr('generator-id')] = $(this).html();
-        		}
+        		$.each($('[generator-id]'),function(){
+        			generator.index.schema[$(this).attr('generator-id')] = $(this).attr('generator-type');
+        		});
         	}
         },
         build: function (obj) {
