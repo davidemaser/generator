@@ -994,6 +994,8 @@ var generator = {
     } || {},
     $g = ge = generator;
     var ajax = generator.ajax;
+    var load = generator.ajax.process.load;
+    var save = generator.ajax.process.save;
     var dialogs = generator.dialogs;
     var errors = generator.errors;
     var extend = generator.extend;
