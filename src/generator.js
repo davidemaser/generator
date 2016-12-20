@@ -105,29 +105,6 @@ var generator = {
                 /* @todo function in process */
                 console.log(ajax.dataHolder);
             },
-            dataToObject: function (arr, obj, callback) {
-                /*
-                 function takes parameter arr in the form of an array and
-                 calls the ajax.process.load function to collect and store
-                 data. The parameters in the arr array correspond to the
-                 parameters required by ajax.process.load. The collected
-                 data is then input into the object (obj)
-                 # arr array schema
-                 # ['json.file',boolean,'array or string',callback.function]
-                 # callback is optional
-                 */
-                var ins = arr || null;
-                if (ins !== null) {
-                    if (ins[3] !== undefined && ins[3] !== null && ins[3] !== '') {
-                        ins[3] = ins[3];
-                    } else {
-                        ins[3] = null;
-                    }
-                    $.when(ajax.process.load(ins[0], ins[1], ins[2], ins[3])).done(function () {
-                        callback();
-                    });
-                }
-            },
             chunk:{
                 status:{},
                 dataHolder:{},
@@ -186,25 +163,32 @@ var generator = {
                 }
             },
             process:{
-                load: function (path, parse, remove, chunk) {
+                load: function (args) {
                     /*
                      function collects and stores JSON data in a global object.
                      The function also cleans and parses the JSON data. This
                      allows you to remove specific elements from the content.
                      remove parameter can be a string or array
+                     args format is :
+                     {
+                        path:'',
+                        parse:true,
+                        remove:['string','or','array'],
+                        chunk:false
+                     }
                      */
                     function parseSource(src){
                         /* @todo should the parseSource function be moved to the helpers object */
                         var _data = JSON.stringify(src),
-                            _parse = parse || false;
-                        if (remove !== '' && remove !== undefined && remove !== null) {
-                            if (typeof remove == 'object') {
-                                for (var r in remove) {
-                                    var _junk = new RegExp(remove[r], 'g');
+                            _parse = args.parse || false;
+                        if (args.remove !== '' && args.remove !== undefined && args.remove !== null) {
+                            if (typeof args.remove == 'object') {
+                                for (var r in args.remove) {
+                                    var _junk = new RegExp(args.remove[r], 'g');
                                     _data = _data.replace(_junk, '');
                                 }
-                            } else if (typeof remove !== 'object') {
-                                _junk = new RegExp(remove, 'g');
+                            } else if (typeof args.remove !== 'object') {
+                                _junk = new RegExp(args.remove, 'g');
                                 _data = _data.replace(_junk, '');
                             }
                         }
@@ -215,7 +199,7 @@ var generator = {
                         }
                     }
                     $.ajax({
-                        url: path,
+                        url: args.path,
                         success: function (data) {
                             ajax.dataHolder = data;
                         }, error: function () {
@@ -224,21 +208,48 @@ var generator = {
                     }).done(function() {
                         parseSource(ajax.dataHolder);
                     }).done(function() {
-                        chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
+                        args.chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
                     });
                 },
-                save:function(args,source,callback){
+                save:function(args){
+                    /*
+                    args format :
+                    {
+                        data:'', //required
+                        url:'', //required
+                        type:'POST', //optional - default is POST
+                        dataType:'', //optional - default is JSON
+                        contentType:'',
+                        headers:'',
+                        password:'',
+                        save:true
+                    }
+                     */
                     var _args = {};
                     function getArguments(){
                         $.each(args,function(key,value){
                             _args[key] = value;
                         });
                     }
-                    function executeSave(src){
+                    function executeSave(obj){
                         $.ajax({
-                            url:'',
-                            method:'',
-                            data:src,
+                            url:obj.url,
+                            type:obj.type || 'POST',
+                            headers:obj.headers,
+                            data:obj.data,
+                            timeout:obj.timeout || null,
+                            dataType:obj.dataType || 'json',
+                            contentType:obj.contentType,
+                            password:obj.password,
+                            statusCode: {
+                                404:function(){
+                                    errors.alert('AJAX Save Error','The server responded with a 404 (page not found) error. Data has not been saved',true,'ajax.process.save[executeSave]');
+                                },
+                                500:function(){
+                                    errors.alert('AJAX Save Error','The server responded with a 500 (server error) code. Data has not been saved',true,'ajax.process.save[executeSave]');
+
+                                }
+                            },
                             success:function(){
                             },
                             error:function(){
@@ -246,12 +257,10 @@ var generator = {
                             }
                         })
                     }
-                    if(args !== undefined && source !== undefined){
+                    if(args !== undefined){
                         if(typeof args == 'object'){
                             $.when(getArguments()).done(function(){
-                                executeSave(source).done(function(){
-                                    callback();
-                                });
+                                executeSave(_args);
                             });
                         }else{
                             errors.alert('Type Mismatch','Function was expecting an object',true,'ajax.process.save');
@@ -261,7 +270,6 @@ var generator = {
                     }
                 }
             }
-
         },
         dialogs:{
             config:{
