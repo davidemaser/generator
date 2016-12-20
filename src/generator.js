@@ -132,12 +132,12 @@ var generator = {
                 status:{},
                 dataHolder:{},
                 set:function(obj,length){
-                    try {
+                    /*
+                     Splits generator.ajax.dataHolder content into smaller chunks, defined by the user.
+                     Chunks will be stored into the chunk objects own dataHolder object and can be
+                     accessed by calling the object generator.ajax.chunk.dataHolder
+                     */
                         obj = obj == null ? generator.ajax.dataHolder : obj;
-                        /*
-                         Splits generator.ajax.dataHolder content into smaller chunks, defined by the user.
-                         Chunks will be stored into the chunk objects own dataHolder object
-                         */
                         Object.defineProperty(Array.prototype, 'chunk_size', {
                             value: function (chunkSize) {
                                 var array = this;
@@ -149,7 +149,7 @@ var generator = {
                             },
                             configurable: true
                         });
-                        var _obj = JSON.parse(obj);
+                        var _obj = typeof obj == 'object' ? obj : JSON.parse(obj);
                         var _objCore = _obj.core;
                         var _chunk = [];
                         for (var o in _objCore) {
@@ -163,9 +163,6 @@ var generator = {
                         });
                         generator.ajax.chunk.status['available'] = true;
                         generator.ajax.chunk.status['chunk count'] = _chunkCount;
-                    }catch(e){
-                        new generator.errors.alert('Function Unavailable','The function you are trying to call does not have required attributes. Load JSON data before running the ajax.chunk.set function',true,'ajax.chunk.set')
-                    }
                 },
                 get:function(start,length){
                     var _available = generator.ajax.chunk.status.available;
@@ -175,16 +172,16 @@ var generator = {
                     if(_available !== undefined && _available === true) {
                         if (length !== 0 && length !== undefined) {
                             for (var i = start; i < length; i++) {
-                                generator.ajax.chunk.dataHolder[i] !== undefined ? _tempChunks.push(generator.ajax.chunk.dataHolder[i]) : false;
+                                ajax.chunk.dataHolder[i] !== undefined ? _tempChunks.push(ajax.chunk.dataHolder[i]) : false;
                             }
                         } else {
-                            for (var c in generator.ajax.chunk.dataHolder) {
-                                generator.ajax.chunk.dataHolder[c] !== undefined ? _tempChunks.push(generator.ajax.chunk.dataHolder[c]) : false;
+                            for (var c in ajax.chunk.dataHolder) {
+                                ajax.chunk.dataHolder[c] !== undefined ? _tempChunks.push(ajax.chunk.dataHolder[c]) : false;
                             }
                         }
                         return _tempChunks;
                     }else{
-                        new generator.errors.alert('Object Unavailable','The object you are trying to access does not exist. Run the chunk.set function',true,'ajax.chunk.get')
+                        new errors.alert('Object Unavailable','The object you are trying to access does not exist. Run the chunk.set function',true,'ajax.chunk.get')
                     }
                 }
             },
@@ -211,22 +208,22 @@ var generator = {
                         }
                     }
                     if (_parse == true) {
-                        generator.ajax.dataHolder = JSON.parse(_data);
+                        ajax.dataHolder = JSON.parse(_data);
                     } else {
-                        generator.ajax.dataHolder = _data;
+                        ajax.dataHolder = _data;
                     }
                 }
                 $.ajax({
                         url: path,
                         success: function (data) {
-                            generator.ajax.dataHolder = data;
+                            ajax.dataHolder = data;
                         }, error: function () {
                             generator.errors.alert('JSON Error','Unable to load JSON. Check your path parameters',true,'ajax.init');
                         }
                 }).done(function() {
-                    parseSource(generator.ajax.dataHolder);
+                    parseSource(ajax.dataHolder);
                 }).done(function() {
-                    chunk == true ? generator.ajax.chunk.set(null,5) : false; //chunks the data if true
+                    chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
                 });
             }
         },
@@ -592,7 +589,7 @@ var generator = {
                                 }
                             });
                         }
-                        if (typeof generator.helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
+                        if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
                             /*
                              we have an object so we know we're going to build a multi-level
                              item. This means we are expecting to see a parent item and one or
@@ -606,7 +603,7 @@ var generator = {
                                  let's make sure our options object is indeed an
                                  object. If it's not, alert the user.
                                  */
-                                new generator.errors.alert('Mismatch', 'The options value in the json is not an object',true,'build');
+                                new errors.alert('Mismatch', 'The options value in the json is not an object',true,'build');
                             } else {
                                 var _parent = '',
                                     _child = '',
@@ -637,7 +634,7 @@ var generator = {
                                 _structure += _result;
                             }
                         } else {
-                            var _template = generator.helpers.getTemplate(_core[i].template, _core[i].type);
+                            var _template = helpers.getTemplate(_core[i].template, _core[i].type);
                             _template = _template.replace('{{object.parent.content}}', _core[i].content);
                             _template = _template.replace(/{{gen.id}}/g, _generatorID);
                             _template = _template.replace('{{gen.type}}', generator.helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
@@ -958,7 +955,16 @@ var generator = {
                 });
             }
         }
-    } || {};
+    } || {},
+    g = ge = generator;
+    var ajax = generator.ajax;
+    var dialog = generator.dialogs;
+    var errors = generator.errors;
+    var extend = generator.extend;
+    var helpers = generator.helpers;
+    var run = generator.init;
+    var storage = generator.storage;
+    var scripts = generator.scripts;
 new generator.init.core('data/demo.json', false, [{plugin: 'translator', params: ['fr_FR', 1000]}]); // method using external JSON
 
 /*new generator.init(
