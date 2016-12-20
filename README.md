@@ -144,7 +144,7 @@ NOTE: Helper functions are a work in progress and will continue to be extended d
 
 Some core generator functions/methods can be called using their alias. This will allow you to write less code to call a generator object. Below is a list of aliases.
 
-- generator : shorthand g or ge (ex: g.init,ge.init)
+- generator : shorthand $g or ge (ex: $g.init,ge.init)
 - generator.ajax : ajax
 - generator.dialogs = dialogs;
 - generator.errors = errors;

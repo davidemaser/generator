@@ -41,6 +41,12 @@ module.exports = function (grunt) {
                 src: ['src/*.js']
             }
         },
+        concat: {
+            basic: {
+                src: ['node_modules/jquery/dist/jquery.min.js','dist/generator.min.js'],
+                dest: 'dist/generator_package.js'
+            }
+        },
          watch: {
             scripts: {
                 files: ['src/*.js','plugins/*.js','lib/*.js'],
@@ -56,8 +62,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'uglify', 'watch']);
+    grunt.registerTask('default', ['jshint', 'uglify', 'concat', 'watch']);
 };

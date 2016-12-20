@@ -956,7 +956,7 @@ var generator = {
             }
         }
     } || {},
-    g = ge = generator;
+    $g = ge = generator;
     var ajax = generator.ajax;
     var dialogs = generator.dialogs;
     var errors = generator.errors;
@@ -966,7 +966,7 @@ var generator = {
     var storage = generator.storage;
     var scripts = generator.scripts;
 new generator.init.core('data/demo.json', false, [{plugin: 'translator', params: ['fr_FR', 1000]}]); // method using external JSON
-// can also be called bu new run.core....
+// can also be called by new run.core....
 
 /*new generator.init(
  {
