@@ -108,9 +108,9 @@ var generator = {
             dataToObject: function (arr, obj, callback) {
                 /*
                  function takes parameter arr in the form of an array and
-                 calls the ajax.init function to collect and store
+                 calls the ajax.process.load function to collect and store
                  data. The parameters in the arr array correspond to the
-                 parameters required by ajax.init. The collected
+                 parameters required by ajax.process.load. The collected
                  data is then input into the object (obj)
                  # arr array schema
                  # ['json.file',boolean,'array or string',callback.function]
@@ -123,7 +123,7 @@ var generator = {
                     } else {
                         ins[3] = null;
                     }
-                    $.when(ajax.init(ins[0], ins[1], ins[2], ins[3])).done(function () {
+                    $.when(ajax.process.load(ins[0], ins[1], ins[2], ins[3])).done(function () {
                         callback();
                     });
                 }
@@ -185,47 +185,83 @@ var generator = {
                     }
                 }
             },
-            init: function (path, parse, remove, chunk) {
-                /*
-                 function collects and stores JSON data in a global object.
-                 The function also cleans and parses the JSON data. This
-                 allows you to remove specific elements from the content.
-                 remove parameter can be a string or array
-                 */
-                function parseSource(src){
-                    /* @todo should the parseSource function be moved to the helpers object */
-                    var _data = JSON.stringify(src),
-                        _parse = parse || false;
-                    if (remove !== '' && remove !== undefined && remove !== null) {
-                        if (typeof remove == 'object') {
-                            for (var r in remove) {
-                                var _junk = new RegExp(remove[r], 'g');
+            process:{
+                load: function (path, parse, remove, chunk) {
+                    /*
+                     function collects and stores JSON data in a global object.
+                     The function also cleans and parses the JSON data. This
+                     allows you to remove specific elements from the content.
+                     remove parameter can be a string or array
+                     */
+                    function parseSource(src){
+                        /* @todo should the parseSource function be moved to the helpers object */
+                        var _data = JSON.stringify(src),
+                            _parse = parse || false;
+                        if (remove !== '' && remove !== undefined && remove !== null) {
+                            if (typeof remove == 'object') {
+                                for (var r in remove) {
+                                    var _junk = new RegExp(remove[r], 'g');
+                                    _data = _data.replace(_junk, '');
+                                }
+                            } else if (typeof remove !== 'object') {
+                                _junk = new RegExp(remove, 'g');
                                 _data = _data.replace(_junk, '');
                             }
-                        } else if (typeof remove !== 'object') {
-                            _junk = new RegExp(remove, 'g');
-                            _data = _data.replace(_junk, '');
+                        }
+                        if (_parse == true) {
+                            ajax.dataHolder = JSON.parse(_data);
+                        } else {
+                            ajax.dataHolder = _data;
                         }
                     }
-                    if (_parse == true) {
-                        ajax.dataHolder = JSON.parse(_data);
-                    } else {
-                        ajax.dataHolder = _data;
-                    }
-                }
-                $.ajax({
+                    $.ajax({
                         url: path,
                         success: function (data) {
                             ajax.dataHolder = data;
                         }, error: function () {
-                            errors.alert('JSON Error','Unable to load JSON. Check your path parameters',true,'ajax.init');
+                            errors.alert('JSON Error','Unable to load JSON. Check your path parameters',true,'ajax.process.load');
                         }
-                }).done(function() {
-                    parseSource(ajax.dataHolder);
-                }).done(function() {
-                    chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
-                });
+                    }).done(function() {
+                        parseSource(ajax.dataHolder);
+                    }).done(function() {
+                        chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
+                    });
+                },
+                save:function(args,source,callback){
+                    var _args = {};
+                    function getArguments(){
+                        $.each(args,function(key,value){
+                            _args[key] = value;
+                        });
+                    }
+                    function executeSave(src){
+                        $.ajax({
+                            url:'',
+                            method:'',
+                            data:src,
+                            success:function(){
+                            },
+                            error:function(){
+                                errors.alert('AJAX Save Error','The server responded with an error. Data has not been saved',true,'ajax.process.save[executeSave]');
+                            }
+                        })
+                    }
+                    if(args !== undefined && source !== undefined){
+                        if(typeof args == 'object'){
+                            $.when(getArguments()).done(function(){
+                                executeSave(source).done(function(){
+                                    callback();
+                                });
+                            });
+                        }else{
+                            errors.alert('Type Mismatch','Function was expecting an object',true,'ajax.process.save');
+                        }
+                    }else{
+                        errors.alert('AJAX Save Error','Required arguments have not been provided',true,'ajax.process.save');
+                    }
+                }
             }
+
         },
         dialogs:{
             config:{
