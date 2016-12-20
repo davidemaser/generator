@@ -140,6 +140,20 @@ Helpers are core objects that execute functions to add or manipulate other gener
 
 NOTE: Helper functions are a work in progress and will continue to be extended during the lifetime of the Generator project.
 
+###Aliases
+
+Some core generator functions/methods can be called using their alias. This will allow you to write less code to call a generator object. Below is a list of aliases.
+
+- generator : shorthand g or ge (ex: g.init,ge.init)
+- generator.ajax : ajax
+- generator.dialogs = dialogs;
+- generator.errors = errors;
+- generator.extend = extend;
+- generator.helpers = helpers;
+- generator.init = run
+- generator.storage = storage;
+- generator.scripts = scripts;
+
 ###Author and License 
 
 Generator is built and maintained by David Maser under GNU GENERAL PUBLIC LICENSE.
