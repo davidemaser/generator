@@ -63,8 +63,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-install-dependencies');
 
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'uglify', 'concat', 'watch']);
+    grunt.registerTask('default', ['jshint', 'uglify', 'concat', 'install-dependencies','watch']);
 };

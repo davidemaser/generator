@@ -6,9 +6,26 @@ Generator is a templating engine built with jQuery that adopts a flexible approa
 
 Assuming you are using jQuery, add the script to your page (in the head if you are building the core structure of your page or before the closing body tag if you are using it to generate components)
 
-```<script src="src/generator.js"></script>```
+```<script src="src/generator.min.js"></script>```
+
+If you'd like to use a packaged version of generator that includes the latest jQuery library, use:
+
+```<script src="src/generator_package.js"></script>```
+
+The non minified, non packaged version of the script is in the src folder of the project. 
 
 You can initialize the script with generator.init.core(). If you do so, remove the initialization call at the bottom of the main script. 
+
+#####Grunt
+
+This project uses Grunt to minify (uglify) and concatenate the package file. There is also a jshint task and a watcher task that runs when grunt is launched. 
+
+If you don't have Node.js installed : https://nodejs.org/en/
+
+- Get Grunt : ```$npm install grunt```
+- Get Grunt CLI (optional) : ```$npm install grunt-cli```
+- Install required dependencies : ```$npm install```
+- Launch Grunt : ```$grunt```
 
 ###Templates
 
