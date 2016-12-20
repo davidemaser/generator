@@ -273,6 +273,68 @@ var generator = {
                 }
             }
         },
+        listener:{
+            init:function(args){
+                /*
+                args format
+                {
+                event:'click',
+                element:'',
+                function:'',
+                timer:5000 //optional after this value, event will be killed
+                }
+                 */
+                if(typeof args == 'object'){
+                    if(Array.isArray(args) === true){
+                        for(var a in args){
+                            console.log(args[a]);
+                            $(args[a].element).on(args[a].event,function(){
+                                eval(args[a].function);
+                                if(args[a].timer !== undefined && args[a].timer !== null){
+                                    window.setTimeout(function(){
+                                        generator.listener.kill({event:args[a].event,element:args[a].element});
+                                    },args[a].timer);
+                                }
+                            });
+                        }
+                    }else{
+                        $(args.element).on(args.event,function(){
+                            eval(args.function);
+                        });
+                        if(args.timer !== undefined && args.timer !== null){
+                            window.setTimeout(function(){
+                                generator.listener.kill({event:args.event,element:args.element});
+                            },args.timer);
+                        }
+                    }
+                }
+            },
+            kill:function(args){
+                if(typeof args == 'object'){
+                    if(Array.isArray(args) === true){
+                        for(var a in args){
+                            if(args[a].timer !== undefined && args[a].timer !== null){
+                                window.setTimeout(function(){
+                                    $(args[a].element).off(args[a].event);
+                                },args[a].timer);
+                            }else{
+                                $(args[a].element).off(args[a].event);
+                            }
+                        }
+                    }else{
+                        if(args.timer !== undefined && args.timer !== null){
+                            window.setTimeout(function(){
+                                $(args.element).off(args.event);
+                                console.warn(args.event+' event killed');
+                            },args.timer);
+                        }else{
+                            $(args.element).off(args.event);
+                            console.warn(args.event+' event killed');
+                        }
+                    }
+                }
+            }
+        },
         dialogs:{
             config:{
                 animate:{
