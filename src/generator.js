@@ -213,6 +213,8 @@ var generator = {
                 },
                 save:function(args){
                     /*
+                    note : save function is the same used for an update call
+                    'PUT' to update
                     args format :
                     {
                         data:'', //required
@@ -255,7 +257,7 @@ var generator = {
                             error:function(){
                                 errors.alert('AJAX Save Error','The server responded with an error. Data has not been saved',true,'ajax.process.save[executeSave]');
                             }
-                        })
+                        });
                     }
                     if(args !== undefined){
                         if(typeof args == 'object'){

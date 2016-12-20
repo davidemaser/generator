@@ -50,9 +50,15 @@ module.exports = function (grunt) {
          watch: {
             scripts: {
                 files: ['src/*.js','plugins/*.js','lib/*.js'],
+                tasks: ['uglify','concat'],
                 options: {
                     spawn: true,
-                    event: 'all'
+                    event: ['added', 'changed'],
+                    reload: true,
+                    livereload: {
+                        host: 'localhost',
+                        port: 35729
+                    }
                 }
             }
         }
