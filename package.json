@@ -17,11 +17,12 @@
   },
   "homepage": "https://github.com/davidemaser/generator#readme",
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-install-dependencies": "^0.2.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-jshint": "^0.11.0",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-contrib-concat": "^1.0.1"
+    "grunt-git": "^1.0.3",
+    "grunt-install-dependencies": "^0.2.0"
   }
 }

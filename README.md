@@ -25,7 +25,7 @@ If you don't have Node.js installed : https://nodejs.org/en/
 - Get Grunt : ```$npm install grunt```
 - Get Grunt CLI (optional) : ```$npm install grunt-cli```
 - Install required dependencies : ```$npm install```
-- Launch Grunt : ```$grunt```
+- Launch Grunt : ```$grunt``` or ```$grunt --force``` to skip failed tasks. 
 
 ###Templates
 
