@@ -10,7 +10,15 @@
         "data-href": "my-link",
         "data-prop": "negative"
       },
-      "content": "Click Me",
+      "content": {
+        "path":"data/demo.json",
+        "parse":false,
+        "remove":null,
+        "chunk":false,
+        "object":"core",
+        "position":0,
+        "node":"template"
+      },
       "style": {
         "background": "#fff",
         "border-right": "1px solid #000"
@@ -59,6 +67,8 @@
         "click": "console.log('sdfsdfsdf')"
       },
       "options": {
+        "json":true,
+        "source":""
       },
       "parent": "body"
     },

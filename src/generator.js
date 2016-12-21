@@ -163,53 +163,99 @@ var generator = {
                 }
             },
             process:{
+                content:function(args){
+                    function dispatchData(v){
+                        return v;
+                    }
+                    return new Promise(function(resolve, reject) {
+                        /*
+                         function collects and stores JSON data in a global object.
+                         The function also cleans and parses the JSON data. This
+                         allows you to remove specific elements from the content.
+                         remove parameter can be a string or array
+                         args format is :
+                         {
+                         path:'',
+                         parse:true,
+                         remove:['string','or','array'],
+                         chunk:false,
+                         object:'',
+                         position:1,
+                         node:''
+                         }
+                         */
+                        $.ajax({
+                            url: args.path,
+                            success: function (data) {
+                                data = args.object !== undefined ? data[args.object] : data;
+                                data = args.position !== undefined ? data[args.position] : data;
+                                data = args.node !== undefined ? data[args.node] : data;
+                                resolve(dispatchData(data));
+                            }, error: function () {
+                                errors.alert('JSON Error', 'Unable to load JSON. Check your path parameters', true, 'ajax.process.load');
+                            }
+                        });
+                    });
+                },
                 load: function (args) {
-                    /*
-                     function collects and stores JSON data in a global object.
-                     The function also cleans and parses the JSON data. This
-                     allows you to remove specific elements from the content.
-                     remove parameter can be a string or array
-                     args format is :
-                     {
-                        path:'',
-                        parse:true,
-                        remove:['string','or','array'],
-                        chunk:false
-                     }
-                     */
-                    function parseSource(src){
-                        /* @todo should the parseSource function be moved to the helpers object */
-                        var _data = JSON.stringify(src),
-                            _parse = args.parse || false;
-                        if (args.remove !== '' && args.remove !== undefined && args.remove !== null) {
-                            if (typeof args.remove == 'object') {
-                                for (var r in args.remove) {
-                                    var _junk = new RegExp(args.remove[r], 'g');
+                        /*
+                         function collects and stores JSON data in a global object.
+                         The function also cleans and parses the JSON data. This
+                         allows you to remove specific elements from the content.
+                         remove parameter can be a string or array
+                         args format is :
+                         {
+                         path:'',
+                         parse:true,
+                         remove:['string','or','array'],
+                         chunk:false,
+                         object:'',
+                         position:1,
+                         node:''
+                         }
+                         */
+                        function parseSource(src) {
+                            if (args.object !== undefined) {
+                                src = src[args.object];
+                            }
+                            if (args.position !== undefined) {
+                                src = src[args.position];
+                            }
+                            if (args.node !== undefined) {
+                                src = src[args.node];
+                            }
+                            /* @todo should the parseSource function be moved to the helpers object */
+                            var _data = JSON.stringify(src),
+                                _parse = args.parse || false;
+                            if (args.remove !== '' && args.remove !== undefined && args.remove !== null) {
+                                if (typeof args.remove == 'object') {
+                                    for (var r in args.remove) {
+                                        var _junk = new RegExp(args.remove[r], 'g');
+                                        _data = _data.replace(_junk, '');
+                                    }
+                                } else if (typeof args.remove !== 'object') {
+                                    _junk = new RegExp(args.remove, 'g');
                                     _data = _data.replace(_junk, '');
                                 }
-                            } else if (typeof args.remove !== 'object') {
-                                _junk = new RegExp(args.remove, 'g');
-                                _data = _data.replace(_junk, '');
+                            }
+                            if (_parse == true) {
+                                ajax.dataHolder = JSON.parse(_data);
+                            } else {
+                                ajax.dataHolder = _data;
                             }
                         }
-                        if (_parse == true) {
-                            ajax.dataHolder = JSON.parse(_data);
-                        } else {
-                            ajax.dataHolder = _data;
-                        }
-                    }
-                    $.ajax({
-                        url: args.path,
-                        success: function (data) {
-                            ajax.dataHolder = data;
-                        }, error: function () {
-                            errors.alert('JSON Error','Unable to load JSON. Check your path parameters',true,'ajax.process.load');
-                        }
-                    }).done(function() {
-                        parseSource(ajax.dataHolder);
-                    }).done(function() {
-                        args.chunk == true ? ajax.chunk.set(null,5) : false; //chunks the data if true
-                    });
+                        $.ajax({
+                            url: args.path,
+                            success: function (data) {
+                                ajax.dataHolder = data;
+                            }, error: function () {
+                                errors.alert('JSON Error', 'Unable to load JSON. Check your path parameters', true, 'ajax.process.load');
+                            }
+                        }).done(function () {
+                            parseSource(ajax.dataHolder);
+                        }).done(function () {
+                            args.chunk == true ? ajax.chunk.set(null, 5) : false; //chunks the data if true
+                        });
                 },
                 save:function(args){
                     /*
@@ -718,138 +764,150 @@ var generator = {
             if (typeof obj == 'object') {
                 var _core = generator.core = obj.core;
                 for (var i in _core) {
-                    var _structure = '';
-                    if (typeof generator.accept == 'object') {
-                        var _validItems = [];
-                        for (var a in generator.accept) {
-                            _validItems = _validItems.concat(generator.accept[a]);
+                    if (typeof _core[i].content == 'object') {
+                        var _tempObject = _core[i].content;
+                        var _tempDataHolder = {};
+                        for (var c in _tempObject) {
+                            if (_tempObject.hasOwnProperty(c)) {
+                                _tempDataHolder[c] = _tempObject[c];
+                            }
                         }
-                    } else {
-                        _validItems = generator.accept;
                     }
-                    if (_core[i].type == 'component') {
-                        var _checkAgainst = _core[i].template;
-                    } else {
-                        _checkAgainst = _core[i].type;
-                    }
-                    var _valid = $.inArray(_checkAgainst, _validItems),
-                        _generatorID = helpers.makeGeneratorID(_core[i].type, i),
-                        _attributes = helpers.makeAttributes(_core[i].attributes);
-                    if (_core[i].template !== null && _core[i].template !== undefined) {
-                        if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                            var _styleString = '',
-                                _styleArray = [];
-                            $.each(_core[i].style, function (key, value) {
-                                if (key == 'type' && value == 'file') {
-                                    new LoadStyleSheet(_core[i].style['url']);
-                                } else if (key == 'type' && value == 'inline') {
-                                    helpers.makeInlineStyle(_core[i].style, _core[i].id);
-                                } else {
-                                    _styleString += key + ':' + value + ';';
-                                }
-                            });
-                        }
-                        if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
-                            /*
-                             we have an object so we know we're going to build a multi-level
-                             item. This means we are expecting to see a parent item and one or
-                             many child objects. We have to pull the template of the
-                             parent and the child and use them to iterate through the options
-                             in our json
-                             */
-                            if (typeof _core[i].options !== 'object') {
-                                /*
-                                 since we are calling an object formatted template
-                                 let's make sure our options object is indeed an
-                                 object. If it's not, alert the user.
-                                 */
-                                new errors.alert('Mismatch', 'The options value in the json is not an object',true,'build');
-                            } else {
-                                var _parent = '',
-                                    _child = '',
-                                    _baseObj = helpers.getTemplate(_core[i].template, _core[i].type);
-                                $.each(_baseObj, function (key, value) {
-                                    if (key == 'parent') {
-                                        _parent = value;
-                                    } else if (key == 'child') {
-                                        _child = value;
-                                    }
-                                });
-                                var _item = '';
-                                for (var o in _core[i].options) {
-                                    _item += _child.replace('{{core.class}}', _core[i].options[o].class !== null ? helpers.makeObjectClass(_core[i].options[o].class) : '');
-                                    _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i + '-' + o + '-child'));
-                                    _item = _item.replace('{{object.child.content}}', _core[i].options[o].item);
-                                    _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
-                                    _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
-                                }
-                                var _result = _parent.replace('{{@inject:[%each.child%]}}', _item);
-                                _result = _result.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
-                                _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
-                                _result = _result.replace('{{core.attributes}}', _attributes);
-                                _result = _result.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
-                                _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i));
-                                _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
-                                _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
-                                _structure += _result;
+                    ajax.process.content(_tempDataHolder).then(function (result) {
+                        console.log(result);
+                    });
+                        var _structure = '';
+                        if (typeof generator.accept == 'object') {
+                            var _validItems = [];
+                            for (var a in generator.accept) {
+                                _validItems = _validItems.concat(generator.accept[a]);
                             }
                         } else {
-                            var _template = helpers.getTemplate(_core[i].template, _core[i].type);
-                            _template = _template.replace('{{object.parent.content}}', _core[i].content);
-                            _template = _template.replace(/{{gen.id}}/g, _generatorID);
-                            _template = _template.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
-                            _template = _template.replace('{{core.attributes}}', _attributes);
-                            _template = _template.replace(/{{object.parent.id}}/g, _core[i].id);
-                            _template = _template.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
-                            _template = _template.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
-                            _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
-                            _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '');
-                            if (_template.indexOf('@include') > -1) {
-                                var _inclusion = _template.split('@include:')[1].split('}}')[0],
-                                    _coreReference = _inclusion.split('.')[1],
-                                    _toAdd = helpers.getTemplate(_inclusion),
-                                    _toRemove = '{{@include:' + _inclusion + '}}';
-                                for (obj in generator.core) {
-                                    if (generator.core[obj].type == _coreReference) {
-                                        _toAdd = _toAdd.replace(/{{object.parent.id}}/g, generator.core[obj].id);
-                                        _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID(generator.core[obj].type, obj));
+                            _validItems = generator.accept;
+                        }
+                        if (_core[i].type == 'component') {
+                            var _checkAgainst = _core[i].template;
+                        } else {
+                            _checkAgainst = _core[i].type;
+                        }
+                        var _valid = $.inArray(_checkAgainst, _validItems),
+                            _generatorID = helpers.makeGeneratorID(_core[i].type, i),
+                            _attributes = helpers.makeAttributes(_core[i].attributes);
+                        if (_core[i].template !== null && _core[i].template !== undefined) {
+                            if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
+                                var _styleString = '',
+                                    _styleArray = [];
+                                $.each(_core[i].style, function (key, value) {
+                                    if (key == 'type' && value == 'file') {
+                                        new LoadStyleSheet(_core[i].style['url']);
+                                    } else if (key == 'type' && value == 'inline') {
+                                        helpers.makeInlineStyle(_core[i].style, _core[i].id);
+                                    } else {
+                                        _styleString += key + ':' + value + ';';
                                     }
-                                }
-                                _template = _template.replace(_toRemove, _toAdd);
+                                });
                             }
-                            _structure += _template;
-                        }
-                    } else {
-                        _structure += '<' + _core[i].type + ' ' + _generatorID;
-                        _structure += _core[i].class !== '' && _core[i].class !== undefined ? helpers.makeObjectClass(_core[i].class) : '';
-                        _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
-                        _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? ' disabled' : '';
-                        if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
-                            $.each(_core[i].attributes, function (key, value) {
-                                if (_core[i].attributes[key] !== '' && _core[i].attributes[key] !== undefined) {
-                                    _structure += ' ' + key + '=' + value;
+                            if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
+                                /*
+                                 we have an object so we know we're going to build a multi-level
+                                 item. This means we are expecting to see a parent item and one or
+                                 many child objects. We have to pull the template of the
+                                 parent and the child and use them to iterate through the options
+                                 in our json
+                                 */
+                                if (typeof _core[i].options !== 'object') {
+                                    /*
+                                     since we are calling an object formatted template
+                                     let's make sure our options object is indeed an
+                                     object. If it's not, alert the user.
+                                     */
+                                    new errors.alert('Mismatch', 'The options value in the json is not an object', true, 'build');
+                                } else {
+                                    var _parent = '',
+                                        _child = '',
+                                        _baseObj = helpers.getTemplate(_core[i].template, _core[i].type);
+                                    $.each(_baseObj, function (key, value) {
+                                        if (key == 'parent') {
+                                            _parent = value;
+                                        } else if (key == 'child') {
+                                            _child = value;
+                                        }
+                                    });
+                                    var _item = '';
+                                    for (var o in _core[i].options) {
+                                        _item += _child.replace('{{core.class}}', _core[i].options[o].class !== null ? helpers.makeObjectClass(_core[i].options[o].class) : '');
+                                        _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i + '-' + o + '-child'));
+                                        _item = _item.replace('{{object.child.content}}', _core[i].options[o].item);
+                                        _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
+                                        _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
+                                    }
+                                    var _result = _parent.replace('{{@inject:[%each.child%]}}', _item);
+                                    _result = _result.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
+                                    _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
+                                    _result = _result.replace('{{core.attributes}}', _attributes);
+                                    _result = _result.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
+                                    _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i));
+                                    _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
+                                    _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
+                                    _structure += _result;
                                 }
+                            } else {
+                                var _template = helpers.getTemplate(_core[i].template, _core[i].type);
+                                _template = _template.replace('{{object.parent.content}}', _core[i].content);
+                                _template = _template.replace(/{{gen.id}}/g, _generatorID);
+                                _template = _template.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
+                                _template = _template.replace('{{core.attributes}}', _attributes);
+                                _template = _template.replace(/{{object.parent.id}}/g, _core[i].id);
+                                _template = _template.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
+                                _template = _template.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
+                                _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
+                                _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '');
+                                if (_template.indexOf('@include') > -1) {
+                                    var _inclusion = _template.split('@include:')[1].split('}}')[0],
+                                        _coreReference = _inclusion.split('.')[1],
+                                        _toAdd = helpers.getTemplate(_inclusion),
+                                        _toRemove = '{{@include:' + _inclusion + '}}';
+                                    for (obj in generator.core) {
+                                        if (generator.core[obj].type == _coreReference) {
+                                            _toAdd = _toAdd.replace(/{{object.parent.id}}/g, generator.core[obj].id);
+                                            _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID(generator.core[obj].type, obj));
+                                        }
+                                    }
+                                    _template = _template.replace(_toRemove, _toAdd);
+                                }
+                                _structure += _template;
+                            }
+                        } else {
+                            _structure += '<' + _core[i].type + ' ' + _generatorID;
+                            _structure += _core[i].class !== '' && _core[i].class !== undefined ? helpers.makeObjectClass(_core[i].class) : '';
+                            _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
+                            _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? ' disabled' : '';
+                            if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
+                                $.each(_core[i].attributes, function (key, value) {
+                                    if (_core[i].attributes[key] !== '' && _core[i].attributes[key] !== undefined) {
+                                        _structure += ' ' + key + '=' + value;
+                                    }
+                                });
+                            }
+                            if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
+                                _styleString = '';
+                                $.each(_core[i].style, function (key, value) {
+                                    _styleString += key + ':' + value + ';';
+                                });
+                                _structure += ' style="' + _styleString + '"';
+                            }
+                            _structure += '>';
+                            _structure += _core[i].content;
+                            _structure += '</' + _core[i].type + '>';
+                        }
+                        if (_valid > -1) {
+                            $(_core[i].parent).append(_structure);
+                            $.each(_core[i].events, function (key, value) {
+                                helpers.makeEventHandlers(key, _generatorID, value);
                             });
                         }
-                        if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                            _styleString = '';
-                            $.each(_core[i].style, function (key, value) {
-                                _styleString += key + ':' + value + ';';
-                            });
-                            _structure += ' style="' + _styleString + '"';
-                        }
-                        _structure += '>';
-                        _structure += _core[i].content;
-                        _structure += '</' + _core[i].type + '>';
-                    }
-                    if (_valid > -1) {
-                        $(_core[i].parent).append(_structure);
-                        $.each(_core[i].events, function (key, value) {
-                            helpers.makeEventHandlers(key, _generatorID, value);
-                        });
                     }
                 }
-            }
         },
         extend: function (obj) {
             /*
