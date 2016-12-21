@@ -97,6 +97,10 @@ Iterative directives tell the inject function what to do with multiple instances
 - unique : returns only unique items in an array on a first come first served basis. 
 - unique.child : a mix of the each.child directive and the unique directive
 
+-> JSON Data
+
+- ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:{src=assets/file,root=object_root,node=node_name}]. Ajax functions can be added to other iterative directives (i.e. {{@inject:[%each.child%],ajax:{src=assets/file,root=object_root,node=node_name}}})
+
 ###Plugins
 
 Plugins can be scripted as separate JavaScript modules and imported into generator before the core function loads. This allows the user to apply filters or transformations to template objects without modifying the core object. Plugins can be loaded during initialization by calling the generator.init parameter. The parameter syntax allows the user to specify which plugin to load and pass parameters to the plugin. Two parameters are used: the plugin name (and unique identifier) and an array of parameters to pass to the plugin. The syntax is as follows :

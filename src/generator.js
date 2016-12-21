@@ -18,7 +18,7 @@ var generator = {
         },
         component: {
             banner: {
-                parent: "<section {{core.id}} {{gen.id}} {{gen.type}} {{core.class}}>{{@inject:[%each.child%]}</section>",
+                parent: "<section {{core.id}} {{gen.id}} {{gen.type}} {{core.class}}>{{@inject:[%each.child%]}}</section>",
                 child: "<div {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</div>"
             },
             gutter: "",
@@ -83,7 +83,7 @@ var generator = {
                 input: "<input type=\"text\" {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} />",
                 textarea: "<textarea {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}>{{object.parent.content}}</textarea>",
                 select: {
-                    parent: "<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</select>",
+                    parent: "<select {{gen.id}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</select>",
                     child: "<option {{gen.id}} {{gen.type}} {{core.value}} {{core.class}}>{{object.child.content}}</option>"
 
                 }
@@ -93,7 +93,7 @@ var generator = {
                 footer: "<footer {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></footer>",
                 nav: "<nav {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}}></nav>",
                 list: {
-                    parent: "<ul {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}</ul>",
+                    parent: "<ul {{gen.id}} {{gen.type}} {{core.class}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</ul>",
                     child: "<li {{gen.id}} {{gen.type}} {{core.class}}>{{object.child.content}}</li>"
 
                 }
@@ -463,6 +463,19 @@ var generator = {
                     return '#'+elem;
                 }
             },
+            checkAjaxRequired:function(obj){
+                function markTargetItem(param){
+
+                }
+                function createAjaxCall(param){
+                    $.when(ajax.process.load()).done(function(){
+
+                    })
+                }
+                if(obj.indexOf('ajax') > 1){
+
+                }
+            },
             removeDomObjects:function(obj){
                 /*
                  removes a specific object or an array of objects
@@ -766,7 +779,7 @@ var generator = {
                                     _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
                                     _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
                                 }
-                                var _result = _parent.replace('{{@inject:[%each.child%]}', _item);
+                                var _result = _parent.replace('{{@inject:[%each.child%]}}', _item);
                                 _result = _result.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
                                 _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
                                 _result = _result.replace('{{core.attributes}}', _attributes);
