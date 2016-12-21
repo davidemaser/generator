@@ -274,6 +274,41 @@ var generator = {
             }
         },
         listener:{
+            mutate:function(args){
+                    /*
+                    args format
+                    {
+                        target:'',
+                        class:'',
+                        delay:1000,
+                        config:{
+                             attributes:true,
+                             childList:true,
+                             characterData:true
+                        }
+                    }
+                     */
+                    var target = document.querySelectorAll(args.target);
+                    var observer = new MutationObserver(function( mutations ) {
+                        mutations.forEach(function( mutation ) {
+                            var newNodes = mutation.addedNodes; // DOM NodeList
+                            if( newNodes !== null ) { // If there are new nodes added
+                                var $nodes = $( newNodes ); // jQuery set
+                                $nodes.each(function() {
+                                    var $node = $( this );
+                                    if( $node.hasClass(args.class) ) {
+                                        console.log(args.class+' mutation has been observed');
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    observer.observe(target, args.config);
+                    args.delay !== undefined && args.delay !== null ?
+                        window.setTimeout(function(){
+                            observer.disconnect();
+                        },args.delay) : false;
+            },
             init:function(args){
                 /*
                 args format
