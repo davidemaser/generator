@@ -99,7 +99,7 @@ Iterative directives tell the inject function what to do with multiple instances
 
 -> JSON Data
 
-- ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:{src=assets/file,root=object_root,node=node_name}]. Ajax functions can be added to other iterative directives (i.e. {{@inject:[%each.child%],ajax:{src=assets/file,root=object_root,node=node_name}}})
+- ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:{src=assets/file,root=object_root,node=node_name}]. Ajax functions can be added to other iterative directives (i.e. {{@inject:[%each.child%],ajax:[{src='assets/file',root='object_root',node='node_name'}]}})
 
 ###Plugins
 

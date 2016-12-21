@@ -464,12 +464,16 @@ var generator = {
                 }
             },
             checkAjaxRequired:function(obj){
+                /*path:'',
+                 parse:true,
+                 remove:['string','or','array'],
+                 chunk:false*/
                 function markTargetItem(param){
 
                 }
                 function createAjaxCall(param){
-                    $.when(ajax.process.load()).done(function(){
-
+                    $.when(ajax.process.load(param)).done(function(){
+                        var _dataSource = ajax.dataHolder;
                     })
                 }
                 if(obj.indexOf('ajax') > 1){
