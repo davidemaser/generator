@@ -163,39 +163,40 @@ var generator = {
                 }
             },
             process:{
-                content:function(args){
-                    function dispatchData(v){
-                        return v;
-                    }
-                    return new Promise(function(resolve, reject) {
-                        /*
-                         function collects and stores JSON data in a global object.
-                         The function also cleans and parses the JSON data. This
-                         allows you to remove specific elements from the content.
-                         remove parameter can be a string or array
-                         args format is :
-                         {
-                         path:'',
-                         parse:true,
-                         remove:['string','or','array'],
-                         chunk:false,
-                         object:'',
-                         position:1,
-                         node:''
-                         }
-                         */
-                        $.ajax({
-                            url: args.path,
-                            success: function (data) {
-                                data = args.object !== undefined ? data[args.object] : data;
-                                data = args.position !== undefined ? data[args.position] : data;
-                                data = args.node !== undefined ? data[args.node] : data;
-                                resolve(dispatchData(data));
-                            }, error: function () {
-                                errors.alert('JSON Error', 'Unable to load JSON. Check your path parameters', true, 'ajax.process.load');
-                            }
+                content:function(args,id){
+                    try{
+                        return new Promise(function (resolve) {
+                            /*
+                             function collects and stores JSON data in a global object.
+                             The function also cleans and parses the JSON data. This
+                             allows you to remove specific elements from the content.
+                             remove parameter can be a string or array
+                             args format is :
+                             {
+                             path:'',
+                             parse:true,
+                             remove:['string','or','array'],
+                             chunk:false,
+                             object:'',
+                             position:1,
+                             node:''
+                             }
+                             */
+                            $.ajax({
+                                url: args.path,
+                                success: function (data) {
+                                    data = args.object !== undefined ? data[args.object] : data;
+                                    data = args.position !== undefined ? data[args.position] : data;
+                                    data = args.node !== undefined ? data[args.node] : data;
+                                    resolve(data);
+                                }, error: function () {
+                                    errors.alert('JSON Error', 'Unable to load JSON. Check your path parameters', true, 'ajax.process.content');
+                                }
+                            });
                         });
-                    });
+                    }catch(e){
+                        errors.alert('Unknown Error', 'Unable to execute the function. Make sure arguments are passed as an object', true, 'ajax.process.content');
+                    }
                 },
                 load: function (args) {
                         /*
@@ -744,38 +745,47 @@ var generator = {
         		});
         	}
         },
-        build: function (obj) {
-            /*
-             main function builds each component with the data in the
-             json or using the json data and the template object together.
-             Each object is assigned a unique identifier to which event
-             handlers are attached if the user has specified them.
-             */
-            function LoadStyleSheet(link) {
-                $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
-            }
+        build:{
+            tempData:{},
+            structure: function (obj) {
+                /*
+                 main function builds each component with the data in the
+                 json or using the json data and the template object together.
+                 Each object is assigned a unique identifier to which event
+                 handlers are attached if the user has specified them.
+                 */
+                function LoadStyleSheet(link) {
+                    $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
+                }
 
-            function LoadScript(link) {
-                $.getScript(link, function () {
-                    //
-                });
-            }
+                function LoadScript(link) {
+                    $.getScript(link, function () {
+                        //
+                    });
+                }
 
-            if (typeof obj == 'object') {
-                var _core = generator.core = obj.core;
-                for (var i in _core) {
-                    if (typeof _core[i].content == 'object') {
-                        var _tempObject = _core[i].content;
-                        var _tempDataHolder = {};
-                        for (var c in _tempObject) {
-                            if (_tempObject.hasOwnProperty(c)) {
-                                _tempDataHolder[c] = _tempObject[c];
+                if (typeof obj == 'object') {
+                    var _tempDataHolder = {};
+                    var _core = generator.core = obj.core;
+                    for (var i in _core) {
+                        if (typeof _core[i].content == 'object') {
+                            var _tempObject = _core[i].content;
+                            for (var c in _tempObject) {
+                                if (_tempObject.hasOwnProperty(c)) {
+                                    _tempDataHolder[c] = _tempObject[c];
+                                }
+                            }
+                            if (_core[i].id !== undefined && _core[i].id !== '') {
+                                var _reformat = JSON.stringify(_tempDataHolder);
+                                generator.build.tempData[_core[i].id] = JSON.parse(_reformat);
                             }
                         }
-                    }
-                    ajax.process.content(_tempDataHolder).then(function (result) {
-                        console.log(result);
-                    });
+                        if(typeof _core[i].content == 'object') {
+                            var _queryObject = generator.build.tempData[_core[i].id];
+                            ajax.process.content(_queryObject).then(function (result) {
+                                console.log(result);
+                            });
+                        }
                         var _structure = '';
                         if (typeof generator.accept == 'object') {
                             var _validItems = [];
@@ -795,8 +805,7 @@ var generator = {
                             _attributes = helpers.makeAttributes(_core[i].attributes);
                         if (_core[i].template !== null && _core[i].template !== undefined) {
                             if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                                var _styleString = '',
-                                    _styleArray = [];
+                                var _styleString = '';
                                 $.each(_core[i].style, function (key, value) {
                                     if (key == 'type' && value == 'file') {
                                         new LoadStyleSheet(_core[i].style['url']);
@@ -908,6 +917,7 @@ var generator = {
                         }
                     }
                 }
+            }
         },
         extend: function (obj) {
             /*
@@ -1086,14 +1096,14 @@ var generator = {
                  */
                 $.when(generator.init.plugins(params), generator.init.extensions(extensions)).done(function () {
                     if (typeof src == 'object') {
-                        generator.build(src);
+                        generator.build.structure(src);
                     } else {
                         $.ajax({
                             url: src,
                             method: 'GET',
                             dataType: 'json',
                             success: function (data) {
-                                generator.build(data);
+                                generator.build.structure(data);
                             },
                             error: function (e) {
                                 console.log('The following error occured ' + e);

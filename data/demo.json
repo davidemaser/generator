@@ -82,7 +82,15 @@
         "data-href": "",
         "data-prop": ""
       },
-      "content": "Don't Click Me",
+      "content": {
+        "path":"data/demo.json",
+        "parse":false,
+        "remove":null,
+        "chunk":false,
+        "object":"core",
+        "position":3,
+        "node":"template"
+      },
       "style": {
         "type":"inline",
         "background": "#fff",
