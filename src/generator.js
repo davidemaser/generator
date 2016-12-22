@@ -26,6 +26,12 @@ var generator = {
             badge: ""
         },
         config: {
+            ajax:{
+                limit:25,
+                timeout:5000,
+                default:'GET',
+                callback:null
+            },
             extensions: {
                 src: {
                     root: 'data/extensions/index.json',
@@ -163,20 +169,12 @@ var generator = {
                 }
             },
             process:{
-                content:function(args,id){
+                content:function(args){
                     try{
                         return new Promise(function (resolve) {
                             /*
-                             function collects and stores JSON data in a global object.
-                             The function also cleans and parses the JSON data. This
-                             allows you to remove specific elements from the content.
-                             remove parameter can be a string or array
-                             args format is :
                              {
                              path:'',
-                             parse:true,
-                             remove:['string','or','array'],
-                             chunk:false,
                              object:'',
                              position:1,
                              node:''
@@ -184,6 +182,7 @@ var generator = {
                              */
                             $.ajax({
                                 url: args.path,
+                                type:config.ajax.default,
                                 success: function (data) {
                                     data = args.object !== undefined ? data[args.object] : data;
                                     data = args.position !== undefined ? data[args.position] : data;
@@ -225,7 +224,6 @@ var generator = {
                             if (args.node !== undefined) {
                                 src = src[args.node];
                             }
-                            /* @todo should the parseSource function be moved to the helpers object */
                             var _data = JSON.stringify(src),
                                 _parse = args.parse || false;
                             if (args.remove !== '' && args.remove !== undefined && args.remove !== null) {
@@ -247,6 +245,7 @@ var generator = {
                         }
                         $.ajax({
                             url: args.path,
+                            type:config.ajax.default,
                             success: function (data) {
                                 ajax.dataHolder = data;
                             }, error: function () {
@@ -286,7 +285,7 @@ var generator = {
                             type:obj.type || 'POST',
                             headers:obj.headers,
                             data:obj.data,
-                            timeout:obj.timeout || null,
+                            timeout:obj.timeout || config.ajax.timeout || null,
                             dataType:obj.dataType || 'json',
                             contentType:obj.contentType,
                             password:obj.password,
@@ -317,6 +316,36 @@ var generator = {
                     }else{
                         errors.alert('AJAX Save Error','Required arguments have not been provided',true,'ajax.process.save');
                     }
+                }
+            },
+            paginate:{
+                init:function(args){
+                    /*
+                    args format is
+                    {
+                        dataSet:object,
+                        dataNode:'string',//optional
+                        start:1,
+                        limit:25
+                    }
+                     */
+                    var _data = args.dataSet;
+                    _data = args.dataNode !== undefined && args.dataNode !== '' ? _data[args.dataNode] : _data;
+                    if(_data.length == undefined){
+                        //find a root node
+                        for(var d in _data){
+                            if(_data.hasOwnProperty(d)){
+                                _data = _data[d];
+                            }
+                        }
+                    }
+                    var _dataScope = {
+                        length:_data.length || null,
+                        start : args.start > 1 ? (parseInt(args.start)-1)*parseInt(args.limit) : 1,
+                        end: parseInt(args.start)*parseInt(args.limit),
+                        pages:Math.round(_data.length/args.limit)
+                    };
+                    console.log(_dataScope);
                 }
             }
         },
