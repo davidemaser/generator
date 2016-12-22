@@ -501,6 +501,14 @@ var generator = {
                     });
                 }
             },
+            loadStyleSheet: function (link) {
+                $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
+            },
+            loadScript: function (link) {
+                $.getScript(link, function () {
+                    //
+                });
+            },
             checkObjectType:function(elem){
                 if($(elem).length !== 0) {
                     return elem;
@@ -735,35 +743,31 @@ var generator = {
             }
         },
         index:{
-        	schema:{},
-        	build:function(id){
+            tempData:{},
+        	init:function(id){
         	/*
         	function builds an index of all generator objects on the page
         	*/
         		$.each($('[generator-id]'),function(){
-        			generator.index.schema[$(this).attr('generator-id')] = $(this).attr('generator-type');
+        			generator.index.tempData[$(this).attr('generator-id')] = $(this).attr('generator-type');
         		});
         	}
         },
         build:{
             tempData:{},
+            init:function(obj){
+                $.when(build.structure(obj)).done(function(){
+
+                })
+            },
             structure: function (obj) {
                 /*
+                @todo: this function has to be redone following an ajax first logic
                  main function builds each component with the data in the
                  json or using the json data and the template object together.
                  Each object is assigned a unique identifier to which event
                  handlers are attached if the user has specified them.
                  */
-                function LoadStyleSheet(link) {
-                    $('<link/>', {rel: 'stylesheet', href: link}).appendTo('head');
-                }
-
-                function LoadScript(link) {
-                    $.getScript(link, function () {
-                        //
-                    });
-                }
-
                 if (typeof obj == 'object') {
                     var _tempDataHolder = {};
                     var _core = generator.core = obj.core;
@@ -777,143 +781,145 @@ var generator = {
                             }
                             if (_core[i].id !== undefined && _core[i].id !== '') {
                                 var _reformat = JSON.stringify(_tempDataHolder);
-                                generator.build.tempData[_core[i].id] = JSON.parse(_reformat);
+                                build.tempData[_core[i].id] = JSON.parse(_reformat);
                             }
-                        }
-                        if(typeof _core[i].content == 'object') {
-                            var _queryObject = generator.build.tempData[_core[i].id];
+                            var _queryObject = build.tempData[_core[i].id];
                             ajax.process.content(_queryObject).then(function (result) {
                                 console.log(result);
-                            });
+                            }).then(structureLayout());
+                        }else{
+                            structureLayout();
                         }
-                        var _structure = '';
-                        if (typeof generator.accept == 'object') {
-                            var _validItems = [];
-                            for (var a in generator.accept) {
-                                _validItems = _validItems.concat(generator.accept[a]);
-                            }
-                        } else {
-                            _validItems = generator.accept;
-                        }
-                        if (_core[i].type == 'component') {
-                            var _checkAgainst = _core[i].template;
-                        } else {
-                            _checkAgainst = _core[i].type;
-                        }
-                        var _valid = $.inArray(_checkAgainst, _validItems),
-                            _generatorID = helpers.makeGeneratorID(_core[i].type, i),
-                            _attributes = helpers.makeAttributes(_core[i].attributes);
-                        if (_core[i].template !== null && _core[i].template !== undefined) {
-                            if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                                var _styleString = '';
-                                $.each(_core[i].style, function (key, value) {
-                                    if (key == 'type' && value == 'file') {
-                                        new LoadStyleSheet(_core[i].style['url']);
-                                    } else if (key == 'type' && value == 'inline') {
-                                        helpers.makeInlineStyle(_core[i].style, _core[i].id);
-                                    } else {
-                                        _styleString += key + ':' + value + ';';
-                                    }
-                                });
-                            }
-                            if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
-                                /*
-                                 we have an object so we know we're going to build a multi-level
-                                 item. This means we are expecting to see a parent item and one or
-                                 many child objects. We have to pull the template of the
-                                 parent and the child and use them to iterate through the options
-                                 in our json
-                                 */
-                                if (typeof _core[i].options !== 'object') {
-                                    /*
-                                     since we are calling an object formatted template
-                                     let's make sure our options object is indeed an
-                                     object. If it's not, alert the user.
-                                     */
-                                    new errors.alert('Mismatch', 'The options value in the json is not an object', true, 'build');
-                                } else {
-                                    var _parent = '',
-                                        _child = '',
-                                        _baseObj = helpers.getTemplate(_core[i].template, _core[i].type);
-                                    $.each(_baseObj, function (key, value) {
-                                        if (key == 'parent') {
-                                            _parent = value;
-                                        } else if (key == 'child') {
-                                            _child = value;
-                                        }
-                                    });
-                                    var _item = '';
-                                    for (var o in _core[i].options) {
-                                        _item += _child.replace('{{core.class}}', _core[i].options[o].class !== null ? helpers.makeObjectClass(_core[i].options[o].class) : '');
-                                        _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i + '-' + o + '-child'));
-                                        _item = _item.replace('{{object.child.content}}', _core[i].options[o].item);
-                                        _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
-                                        _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
-                                    }
-                                    var _result = _parent.replace('{{@inject:[%each.child%]}}', _item);
-                                    _result = _result.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
-                                    _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
-                                    _result = _result.replace('{{core.attributes}}', _attributes);
-                                    _result = _result.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
-                                    _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i));
-                                    _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
-                                    _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
-                                    _structure += _result;
+                        function structureLayout() {
+                            var _structure = '';
+                            if (typeof generator.accept == 'object') {
+                                var _validItems = [];
+                                for (var a in generator.accept) {
+                                    _validItems = _validItems.concat(generator.accept[a]);
                                 }
                             } else {
-                                var _template = helpers.getTemplate(_core[i].template, _core[i].type);
-                                _template = _template.replace('{{object.parent.content}}', _core[i].content);
-                                _template = _template.replace(/{{gen.id}}/g, _generatorID);
-                                _template = _template.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
-                                _template = _template.replace('{{core.attributes}}', _attributes);
-                                _template = _template.replace(/{{object.parent.id}}/g, _core[i].id);
-                                _template = _template.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
-                                _template = _template.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
-                                _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
-                                _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '');
-                                if (_template.indexOf('@include') > -1) {
-                                    var _inclusion = _template.split('@include:')[1].split('}}')[0],
-                                        _coreReference = _inclusion.split('.')[1],
-                                        _toAdd = helpers.getTemplate(_inclusion),
-                                        _toRemove = '{{@include:' + _inclusion + '}}';
-                                    for (obj in generator.core) {
-                                        if (generator.core[obj].type == _coreReference) {
-                                            _toAdd = _toAdd.replace(/{{object.parent.id}}/g, generator.core[obj].id);
-                                            _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID(generator.core[obj].type, obj));
+                                _validItems = generator.accept;
+                            }
+                            if (_core[i].type == 'component') {
+                                var _checkAgainst = _core[i].template;
+                            } else {
+                                _checkAgainst = _core[i].type;
+                            }
+                            var _valid = $.inArray(_checkAgainst, _validItems),
+                                _generatorID = helpers.makeGeneratorID(_core[i].type, i),
+                                _attributes = helpers.makeAttributes(_core[i].attributes);
+                            if (_core[i].template !== null && _core[i].template !== undefined) {
+                                if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
+                                    var _styleString = '';
+                                    $.each(_core[i].style, function (key, value) {
+                                        if (key == 'type' && value == 'file') {
+                                            new helpers.loadStyleSheet(_core[i].style['url']);
+                                        } else if (key == 'type' && value == 'inline') {
+                                            helpers.makeInlineStyle(_core[i].style, _core[i].id);
+                                        } else {
+                                            _styleString += key + ':' + value + ';';
                                         }
-                                    }
-                                    _template = _template.replace(_toRemove, _toAdd);
+                                    });
                                 }
-                                _structure += _template;
-                            }
-                        } else {
-                            _structure += '<' + _core[i].type + ' ' + _generatorID;
-                            _structure += _core[i].class !== '' && _core[i].class !== undefined ? helpers.makeObjectClass(_core[i].class) : '';
-                            _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
-                            _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? ' disabled' : '';
-                            if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
-                                $.each(_core[i].attributes, function (key, value) {
-                                    if (_core[i].attributes[key] !== '' && _core[i].attributes[key] !== undefined) {
-                                        _structure += ' ' + key + '=' + value;
+                                if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
+                                    /*
+                                     we have an object so we know we're going to build a multi-level
+                                     item. This means we are expecting to see a parent item and one or
+                                     many child objects. We have to pull the template of the
+                                     parent and the child and use them to iterate through the options
+                                     in our json
+                                     */
+                                    if (typeof _core[i].options !== 'object') {
+                                        /*
+                                         since we are calling an object formatted template
+                                         let's make sure our options object is indeed an
+                                         object. If it's not, alert the user.
+                                         */
+                                        new errors.alert('Mismatch', 'The options value in the json is not an object', true, 'build');
+                                    } else {
+                                        var _parent = '',
+                                            _child = '',
+                                            _baseObj = helpers.getTemplate(_core[i].template, _core[i].type);
+                                        $.each(_baseObj, function (key, value) {
+                                            if (key == 'parent') {
+                                                _parent = value;
+                                            } else if (key == 'child') {
+                                                _child = value;
+                                            }
+                                        });
+                                        var _item = '';
+                                        for (var o in _core[i].options) {
+                                            _item += _child.replace('{{core.class}}', _core[i].options[o].class !== null ? helpers.makeObjectClass(_core[i].options[o].class) : '');
+                                            _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i + '-' + o + '-child'));
+                                            _item = _item.replace('{{object.child.content}}', _core[i].options[o].item);
+                                            _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
+                                            _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
+                                        }
+                                        var _result = _parent.replace('{{@inject:[%each.child%]}}', _item);
+                                        _result = _result.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
+                                        _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
+                                        _result = _result.replace('{{core.attributes}}', _attributes);
+                                        _result = _result.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
+                                        _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i));
+                                        _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
+                                        _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
+                                        _structure += _result;
                                     }
+                                } else {
+                                    var _template = helpers.getTemplate(_core[i].template, _core[i].type);
+                                    _template = _template.replace('{{object.parent.content}}', _core[i].content);
+                                    _template = _template.replace(/{{gen.id}}/g, _generatorID);
+                                    _template = _template.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
+                                    _template = _template.replace('{{core.attributes}}', _attributes);
+                                    _template = _template.replace(/{{object.parent.id}}/g, _core[i].id);
+                                    _template = _template.replace('{{core.id}}', _core[i].id !== null ? helpers.makeObjectID(_core[i].id) : '');
+                                    _template = _template.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
+                                    _template = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _template.replace('{{object.parent.disabled}}', 'disabled') : _template.replace(' {{object.parent.disabled}}', '');
+                                    _template = _styleString !== '' && _styleString !== undefined ? _template.replace('{{gen.style}}', 'style="' + _styleString + '"') : _template.replace('{{gen.style}}', '');
+                                    if (_template.indexOf('@include') > -1) {
+                                        var _inclusion = _template.split('@include:')[1].split('}}')[0],
+                                            _coreReference = _inclusion.split('.')[1],
+                                            _toAdd = helpers.getTemplate(_inclusion),
+                                            _toRemove = '{{@include:' + _inclusion + '}}';
+                                        for (obj in generator.core) {
+                                            if (generator.core[obj].type == _coreReference) {
+                                                _toAdd = _toAdd.replace(/{{object.parent.id}}/g, generator.core[obj].id);
+                                                _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID(generator.core[obj].type, obj));
+                                            }
+                                        }
+                                        _template = _template.replace(_toRemove, _toAdd);
+                                    }
+                                    _structure += _template;
+                                }
+                            } else {
+                                _structure += '<' + _core[i].type + ' ' + _generatorID;
+                                _structure += _core[i].class !== '' && _core[i].class !== undefined ? helpers.makeObjectClass(_core[i].class) : '';
+                                _structure += _core[i].id !== '' && _core[i].id !== undefined ? ' id="' + _core[i].id + '"' : '';
+                                _structure += _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? ' disabled' : '';
+                                if (_core[i].attributes !== '' && _core[i].attributes !== undefined && typeof _core[i].attributes == 'object') {
+                                    $.each(_core[i].attributes, function (key, value) {
+                                        if (_core[i].attributes[key] !== '' && _core[i].attributes[key] !== undefined) {
+                                            _structure += ' ' + key + '=' + value;
+                                        }
+                                    });
+                                }
+                                if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
+                                    _styleString = '';
+                                    $.each(_core[i].style, function (key, value) {
+                                        _styleString += key + ':' + value + ';';
+                                    });
+                                    _structure += ' style="' + _styleString + '"';
+                                }
+                                _structure += '>';
+                                _structure += _core[i].content;
+                                _structure += '</' + _core[i].type + '>';
+                            }
+                            if (_valid > -1) {
+                                $(_core[i].parent).append(_structure);
+                                $.each(_core[i].events, function (key, value) {
+                                    helpers.makeEventHandlers(key, _generatorID, value);
                                 });
                             }
-                            if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
-                                _styleString = '';
-                                $.each(_core[i].style, function (key, value) {
-                                    _styleString += key + ':' + value + ';';
-                                });
-                                _structure += ' style="' + _styleString + '"';
-                            }
-                            _structure += '>';
-                            _structure += _core[i].content;
-                            _structure += '</' + _core[i].type + '>';
-                        }
-                        if (_valid > -1) {
-                            $(_core[i].parent).append(_structure);
-                            $.each(_core[i].events, function (key, value) {
-                                helpers.makeEventHandlers(key, _generatorID, value);
-                            });
                         }
                     }
                 }
@@ -1017,37 +1023,47 @@ var generator = {
             },
             load:function(args) {
                 if(this.supported() === true){
-                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
+                    var _lsItem = args.prefix === true ? config.storage.prefix+args.id : args.id;
                     return localStorage.getItem(_lsItem);
                 }
             },
             save:function(args) {
                 if(this.supported() === true){
-                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
+                    var _lsItem = args.prefix === true ? config.storage.prefix+args.id : args.id;
                     localStorage.setItem(_lsItem,args.data);
                 }
             },
             purge:function(args) {
                 if(this.supported() === true) {
-                    var _lsItem = args.prefix === true ? generator.config.storage.prefix+args.id : args.id;
+                    var _lsItem = args.prefix === true ? config.storage.prefix+args.id : args.id;
                     localStorage.removeItem(_lsItem);
                 }
             }
         },
         scripts:{
-            load: function (obj, root, ext) {
-                var _root = root || generator.config.scripts.root;
-                var _ext = ext || generator.config.scripts.extension.format;
-                var _append = generator.config.scripts.extension.append;
+            load: function (obj) {
+                var _append = config.scripts.extension.append;
                 /*
                  the obj parameter should be formatted as follows
-                 [{
-                 id:'demo',url:'demo',
+                 [
+                 {
+                 id:'demo',
+                 url:'demo',
+                 root:'string',
+                 extension:'string',
+                 //optional
                  functions:[
-                 {call:'testAgain',
-                 params:['string','or','array']
-                 },{call:'test'}
-                 ]}]
+                    {
+                        call:'testAgain',
+                        params:['string','or','array']
+                    },
+                    {
+                        call:'test'
+                    }
+                    ]
+                 //end optional
+                 }
+                 ]
                  */
                 var _multiple = Array.isArray(obj);
                 if (_multiple === true) {
@@ -1059,16 +1075,20 @@ var generator = {
                 }
                 if (typeof _tempArray == 'object') {
                     $.each(obj, function (key) {
-                        var _tempFunctions = obj[key].functions,
+                        var _root = obj[key].root || config.scripts.root;
+                        var _ext = obj[key].ext || config.scripts.extension.format;
+                        var _tempFunctions = obj[key].functions || null,
                             _tempURL = _root + obj[key].url;
                         _tempURL += _append === true ? '.' + _ext : '';
                         $.getScript(_tempURL).done(function () {
-                            if (Array.isArray(_tempFunctions) === true) {
-                                for (var f in _tempFunctions) {
-                                    helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
+                            if(_tempFunctions !== null) {
+                                if (Array.isArray(_tempFunctions) === true) {
+                                    for (var f in _tempFunctions) {
+                                        helpers.executeFunctionByName(_tempFunctions[f].call, window, _tempFunctions[f].params);
+                                    }
+                                } else {
+                                    helpers.executeFunctionByName(_tempFunctions.call, window, _tempFunctions.params);
                                 }
-                            } else {
-                                helpers.executeFunctionByName(_tempFunctions.call, window, _tempFunctions.params);
                             }
                         }).fail(function () {
                             console.log('Unable to load ' + _tempURL);
@@ -1094,16 +1114,16 @@ var generator = {
                  url as the parameter value
                  i.e. generator.init('data/demo.json','data/extends.json')
                  */
-                $.when(generator.init.plugins(params), generator.init.extensions(extensions)).done(function () {
+                $.when(run.plugins(params), run.extensions(extensions)).done(function () {
                     if (typeof src == 'object') {
-                        generator.build.structure(src);
+                        build.init(src);
                     } else {
                         $.ajax({
                             url: src,
                             method: 'GET',
                             dataType: 'json',
                             success: function (data) {
-                                generator.build.structure(data);
+                                build.init(data);
                             },
                             error: function (e) {
                                 console.log('The following error occured ' + e);
@@ -1118,7 +1138,7 @@ var generator = {
             extensions: function (obj) {
                 if (obj !== false) {
                     if (obj === '' || obj === undefined) {
-                        obj = generator.config.extensions.src.root;
+                        obj = config.extensions.src.root;
                     }
                     if (obj !== '' && obj !== null && obj !== undefined) {
                         $.ajax({
@@ -1185,20 +1205,24 @@ var generator = {
         }
     } || {},
     $g = ge = generator;
-    var ajax = generator.ajax;
+    var ajax = a = generator.ajax;
+    var build = generator.build;
     var load = generator.ajax.process.load;
     var save = generator.ajax.process.save;
-    var dialogs = generator.dialogs;
-    var errors = generator.errors;
+    var dialogs = d = generator.dialogs;
+    var errors = e = generator.errors;
     var extend = generator.extend;
-    var helpers = generator.helpers;
+    var helpers = h = generator.helpers;
     var run = generator.init;
-    var storage = generator.storage;
+    var storage = s = generator.storage;
     var scripts = generator.scripts;
-new generator.init.core('data/demo.json', false, [{plugin: 'translator', params: ['fr_FR', 1000]}]); // method using external JSON
-// can also be called by new run.core....
+    var config = c = generator.config;
 
-/*new generator.init(
+
+new run.core('data/demo.json', false, [{plugin: 'translator', params: ['fr_FR', 1000]}]); // method using external JSON
+// can also be called by new generator.core, new $g.core or ge.core
+
+/*new generator.init.core(
  {
  "core": [
  {
