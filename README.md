@@ -173,15 +173,19 @@ NOTE: Helper functions are a work in progress and will continue to be extended d
 
 Some core generator functions/methods can be called using their alias. This will allow you to write less code to call a generator object. Below is a list of aliases.
 
-- generator : shorthand $g or ge (ex: $g.init,ge.init)
-- generator.ajax : ajax
-- generator.dialogs = dialogs;
-- generator.errors = errors;
-- generator.extend = extend;
-- generator.helpers = helpers;
-- generator.init = run
-- generator.storage = storage;
-- generator.scripts = scripts;
+- $g = ge => generator
+- ajax = a => generator.ajax
+- build => generator.build
+- load => generator.ajax.process.load
+- save => generator.ajax.process.save
+- dialogs = d => generator.dialogs
+- errors = e => generator.errors
+- extend => generator.extend
+- helpers = h => generator.helpers
+- run => generator.init
+- storage = s => generator.storage
+- scripts => generator.scripts
+- config = c => generator.config
 
 ###Author and License 
 
