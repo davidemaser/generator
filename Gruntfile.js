@@ -61,6 +61,21 @@ module.exports = function (grunt) {
                     }
                 }
             }
+        },
+        browserSync: {
+            dev: {
+                bsFiles: {
+                    src : [
+                        'src/generator.js',
+                        'dist/generator.min.js',
+                        'dist/generator_package.js'
+                    ]
+                },
+                options: {
+                    port: 63342,
+                    proxy: "localhost:63342/GENERATOR/demo.html"
+                }
+            }
         }
     });
 
@@ -70,6 +85,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-install-dependencies');
+    grunt.loadNpmTasks('grunt-browser-sync');
 
 
     // Default task.
