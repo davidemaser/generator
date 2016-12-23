@@ -167,11 +167,26 @@ $.when(ajax.process.load({
 
 Once this function has executed, the returned data can be accessed by calling the ajax.dataHolder object or, if the data was chunked, by calling the ajax.chunk.dataHolder object. To check if any data chunks exists, call ajax.chunk.status.available. It will return true if chunked data is found. 
 
-- ######save {function - generator.ajax.process.content(args)}
+- save {function - generator.ajax.process.save(args)}
+
+This function will execute an ajax POST or PUT call to save or update data in a remote datasource. Data can be pulled from the ajax.dataHolder object, the ajax.chunk.dataHolder object, or from the serializePageContent helper function. The arguments for this function are as follows.
+
+```
+{
+    data:'', //required - string or object
+    url:'path/to/yourscript.php', //required
+    type:'POST', //optional: POST or PUT - default is POST
+    dataType:'', //optional - default is JSON
+    contentType:'', //optional - (i.e. application/json)
+    headers:'', //optional: string or object
+    password:'', //optional
+    save:true //optional - save data locally using generator.storage.save function
+}
+```
 
 #####=>paginate {object - generator.ajax.paginate}
 
-- ######init {function - generator.ajax.paginate.init(args)}
+- init {function - generator.ajax.paginate.init(args)}
 
 ####listener {object - generator.listener}
 
