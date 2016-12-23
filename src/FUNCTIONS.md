@@ -81,19 +81,37 @@ The chunk.status object is a simple feature that contains information about the 
 
 The chunk.dataHolder is a placeholder for data that is returned by the chunk functions.
 
-- set {function - generator.ajax.chunk.set(obj,length)}
+- set {function - generator.ajax.chunk.set(args)}
 
 ```
 ajax.chunk.set(object,10)
 ``` 
 
+The arguments for this function are as follows
+
+```
+{
+    object:object,
+    length:numeric
+}
+```
+
 This code will take the object passed as a parameter and split it into 10 chunks. The chunks can be accessed by calling the dataHolder ```ajax.chunk.dataHolder``` or by using the chunk.get function.
 
-- get {function - generator.ajax.chunk.get(start,length)}
+- get {function - generator.ajax.chunk.get(args)}
 
 ```
 ajax.chunk.get(0,10)
 ``` 
+
+The arguments for this function are as follows
+
+```
+{
+    start:numeric,
+    length:numeric
+}
+```
 
 This code will return all data chunks from entry 0 to entry 10. Chunks can be paginated using the ajax.paginate function. 
 

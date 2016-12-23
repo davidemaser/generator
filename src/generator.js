@@ -114,13 +114,18 @@ var generator = {
             chunk:{
                 status:{},
                 dataHolder:{},
-                set:function(obj,length){
+                set:function(args){
                     /*
+                    the args format is:
+                     {
+                     object:object,
+                     length:numeric
+                     }
                      Splits generator.ajax.dataHolder content into smaller chunks, defined by the user.
                      Chunks will be stored into the chunk objects own dataHolder object and can be
                      accessed by calling the object generator.ajax.chunk.dataHolder
                      */
-                        obj = obj == null ? ajax.dataHolder : obj;
+                        args.object = args.object == null ? ajax.dataHolder : args.object;
                         Object.defineProperty(Array.prototype, 'chunk_size', {
                             value: function (chunkSize) {
                                 var array = this;
@@ -132,13 +137,13 @@ var generator = {
                             },
                             configurable: true
                         });
-                        var _obj = typeof obj == 'object' ? obj : JSON.parse(obj);
+                        var _obj = typeof args.object == 'object' ? args.object : JSON.parse(args.object);
                         var _objCore = _obj.core;
                         var _chunk = [];
                         for (var o in _objCore) {
                             _chunk.push(_objCore[o]);
                         }
-                        var _tempArray = _chunk.chunk_size(length);
+                        var _tempArray = _chunk.chunk_size(args.length);
                         var _chunkCount = 0;
                         $.each(_tempArray, function (key, value) {
                             ajax.chunk.dataHolder[key] = value;
@@ -147,14 +152,21 @@ var generator = {
                         ajax.chunk.status['available'] = true;
                         ajax.chunk.status['chunk count'] = _chunkCount;
                 },
-                get:function(start,length){
+                get:function(args){
+                    /*
+                    args format is:
+                    {
+                     start:numeric,
+                     length:numeric
+                    }
+                     */
                     var _available = ajax.chunk.status.available;
-                    start = start || 0;
-                    length = length || 0;
+                    args.start = args.start || 0;
+                    args.length = args.length || 0;
                     var _tempChunks = [];
                     if(_available !== undefined && _available === true) {
-                        if (length !== 0 && length !== undefined) {
-                            for (var i = start; i < length; i++) {
+                        if (args.length !== 0 && args.length !== undefined) {
+                            for (var i = args.start; i < length; i++) {
                                 ajax.chunk.dataHolder[i] !== undefined ? _tempChunks.push(ajax.chunk.dataHolder[i]) : false;
                             }
                         } else {
@@ -492,7 +504,7 @@ var generator = {
                             '<div class="gen_confirm buttons">{{confirm.buttons}}</div>' +
                             '</div>' +
                             '</div>';
-                        _confirm = _confirm.replace('{{confirm.title}}',_confirmTitle).replace('{{confirm.message}}',_confirmMessage).replace('{{confirm.buttons}}',helpers.buildButtons(_confirmButtons,_required,_options));
+                        _confirm = _confirm.replace('{{confirm.title}}',_confirmTitle).replace('{{confirm.message}}',_confirmMessage).replace('{{confirm.buttons}}',helpers.buildButtons({param:_confirmButtons,required:_required,options:_options}));
                         $(this.config.parent).prepend(_confirm);
                         _animate === true ? $('.gen_confirm').animate({opacity:1},this.config.animate.delay) : $('.gen_confirm').attr('style','');
                     }
@@ -515,7 +527,7 @@ var generator = {
                             '<div class="gen_modal buttons">{{modal.buttons}}</div>' +
                             '</div>' +
                             '</div>';
-                        _modal = _modal.replace('{{modal.title}}',_modalTitle).replace('{{modal.message}}',_modalMessage).replace('{{modal.buttons}}',helpers.buildButtons(_modalButtons,_required,_options));
+                        _modal = _modal.replace('{{modal.title}}',_modalTitle).replace('{{modal.message}}',_modalMessage).replace('{{modal.buttons}}',helpers.buildButtons({param:_modalButtons,required:_required,options:_options}));
                         $(this.config.parent).prepend(_modal).on('click','button[data-action="close"]',function(){
                             helpers.removeDomObjects('gen_modal');
                         });
@@ -525,12 +537,21 @@ var generator = {
              }
         },
         helpers: {
-            adoptChidren: function (parent, children) {
-                if (typeof children == 'object') {
-                    $.each(children, function (key, value) {
-                        $(parent).append(value);
+            adoptChidren: function (args) {
+                /*
+                args format is:
+                {
+                 parent:'string',
+                 child:'string' or object
+                }
+                 */
+                if (typeof args.children == 'object') {
+                    $.each(args.children, function (key, value) {
+                        $(args.parent).append(value);
                         //@todo this has to be done soon or descoped
                     });
+                }else{
+                    $(args.parent).append(args.child);
                 }
             },
             loadStyleSheet: function (link) {
@@ -586,16 +607,24 @@ var generator = {
                     $.inArray(obj,_refuse)  > -1 ? console.log('that item can not be removed') : $(_object).remove();
                 }
             },
-            buildButtons:function(param,required,options){
+            buildButtons:function(args){
+                /*
+                args format is:
+                {
+                param:object,
+                required:object,
+                options:array
+                }
+                 */
                 var _buttonString = '';
                 var _button = '<div class="button">{{gen.button}}</div>';
-                if(typeof param == 'object'){
-                    for(var p in param){
-                        if(p !== 'close' && $.inArray(p,options) > -1){
-                            var _thisButton = '<button type="'+p+'" data-action="'+param[p].action+'">'+param[p].label+'</button>';
+                if(typeof args.param == 'object'){
+                    for(var p in args.param){
+                        if(p !== 'close' && $.inArray(p,args.options) > -1){
+                            var _thisButton = '<button type="'+p+'" data-action="'+args.param[p].action+'">'+args.param[p].label+'</button>';
                             _buttonString += _button.replace('{{gen.button}}',_thisButton);
-                        }else if(p === 'close' && $.inArray(p,required) > -1){
-                            _thisButton = '<button type="'+p+'" data-action="close">'+param[p].label+'</button>';
+                        }else if(p === 'close' && $.inArray(p,args.required) > -1){
+                            _thisButton = '<button type="'+p+'" data-action="close">'+args.param[p].label+'</button>';
                             _buttonString += _button.replace('{{gen.button}}',_thisButton);
                         }
                     }
@@ -633,13 +662,18 @@ var generator = {
                 }
                 return context[func].apply(context, args);
             },
-            getTemplate: function (item, type) {
+            getTemplate: function (args) {
                 /*
+                args format is:
+                {
+                 item:'string',
+                 type:'string'
+                }
                  gets the type of template object from the JSON and
                  extracts the template string from the template
                  object
                  */
-                switch (type) {
+                switch (args.type) {
                     case 'object':
                         var _string = generator.nomenclature.template;
                         break;
@@ -650,25 +684,30 @@ var generator = {
                         _string = generator.nomenclature.widget;
                         break;
                 }
-                if (item.indexOf('.') > -1) {
-                    item = item.split('.');
-                    for (var i in item) {
-                        _string += '.' + item[i];
+                if (args.item.indexOf('.') > -1) {
+                    args.item = args.item.split('.');
+                    for (var i in args.item) {
+                        _string += '.' + args.item[i];
                     }
                 } else {
-                    _string += '.' + item;
+                    _string += '.' + args.item;
                 }
                 if (eval(_string) !== undefined) {
                     return eval(_string);
                 }
             },
-            makeGeneratorID: function (type, unit) {
+            makeGeneratorID: function (args) {
                 /*
+                args format is:
+                {
+                type:'string',
+                unit:'string'
+                }
                  returns a unique generator id. Each object
                  has a generator ID.
                  */
                 var _string = generator.nomenclature.generator;
-                return _string.replace('{{type}}', type).replace('{{unit}}', unit);
+                return _string.replace('{{type}}', args.type).replace('{{unit}}', args.unit);
             },
             makeObjectClass: function (val) {
                 /*
@@ -738,8 +777,13 @@ var generator = {
                 }
                 return _string;
             },
-            makeInlineStyle: function (obj, parent) {
+            makeInlineStyle: function (args) {
                 /*
+                args format is:
+                {
+                    obj:object,
+                    parent:'string'
+                }
                  instead of using inline styles, the generator
                  object's CSS attributes can be written to a
                  style attribute that is appended to the head.
@@ -747,11 +791,11 @@ var generator = {
                  file :: see LoadStyleSheet in the generator core
                  */
                 var _styleString = '<style type="text/css">\n';
-                if (typeof obj == 'object') {
-                    _styleString += '#' + parent + '{\n';
-                    for (var o in obj) {
+                if (typeof args.obj == 'object') {
+                    _styleString += '#' + args.parent + '{\n';
+                    for (var o in args.obj) {
                         if (o !== 'type' && o !== 'url') {
-                            _styleString += o + ':' + obj[o] + ';\n';
+                            _styleString += o + ':' + args.obj[o] + ';\n';
                         }
                     }
                     _styleString += '}\n';
@@ -760,18 +804,36 @@ var generator = {
                 $(_styleString).appendTo('head');
 
             },
-            makeEventHandlers: function (key, id, val) {
+            makeEventHandlers: function (args) {
                 /*
+                args format is :
+                {
+                key:'string',
+                id:'string',
+                function:'string'
+                }
                  binds an event handler to a page object
                  using the objects generator-id
                  */
-                $('body').on(key, '[' + id + ']', function () {
-                    eval(val);
+                $('body').on(args.key, '[' + args.id + ']', function () {
+                    eval(args.val);
                 });
             },
             switchParent: function (item, parent) {
                 var _item = $(item).detach();
                 $(parent).append(_item);
+            },
+            serializePageContent:function(args){
+                /*
+                args format is:
+                {
+                    item:'string',
+                    type:'string'
+                }
+                item can be formatted as a class, an ID, a selector (i.e. :input) or a tag (i.e. form)
+                 */
+                var _data = args.type == 'array' ? $(args.item).serialize() : $(args.item).serializeArray();
+                return _data;
             }
         },
         index:{
@@ -838,7 +900,7 @@ var generator = {
                                 _checkAgainst = _core[i].type;
                             }
                             var _valid = $.inArray(_checkAgainst, _validItems),
-                                _generatorID = helpers.makeGeneratorID(_core[i].type, i),
+                                _generatorID = helpers.makeGeneratorID({type:_core[i].type, unit:i}),
                                 _attributes = helpers.makeAttributes(_core[i].attributes);
                             if (_core[i].template !== null && _core[i].template !== undefined) {
                                 if (_core[i].style !== '' && _core[i].style !== undefined && typeof _core[i].style == 'object') {
@@ -853,7 +915,7 @@ var generator = {
                                         }
                                     });
                                 }
-                                if (typeof helpers.getTemplate(_core[i].template, _core[i].type) == 'object') {
+                                if (typeof helpers.getTemplate({item:_core[i].template,type:_core[i].type}) == 'object') {
                                     /*
                                      we have an object so we know we're going to build a multi-level
                                      item. This means we are expecting to see a parent item and one or
@@ -871,7 +933,7 @@ var generator = {
                                     } else {
                                         var _parent = '',
                                             _child = '',
-                                            _baseObj = helpers.getTemplate(_core[i].template, _core[i].type);
+                                            _baseObj = helpers.getTemplate({item:_core[i].template,type:_core[i].type});
                                         $.each(_baseObj, function (key, value) {
                                             if (key == 'parent') {
                                                 _parent = value;
@@ -882,7 +944,7 @@ var generator = {
                                         var _item = '';
                                         for (var o in _core[i].options) {
                                             _item += _child.replace('{{core.class}}', _core[i].options[o].class !== null ? helpers.makeObjectClass(_core[i].options[o].class) : '');
-                                            _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i + '-' + o + '-child'));
+                                            _item = _item.replace(/{{gen.id}}/g, helpers.makeGeneratorID({type:_core[i].type, unit:i + '-' + o + '-child'}));
                                             _item = _item.replace('{{object.child.content}}', _core[i].options[o].item);
                                             _item = _item.replace('{{core.value}}', helpers.makeObjectValue(_core[i].options[o].value));
                                             _item = _item.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template + '.sub'));
@@ -892,13 +954,13 @@ var generator = {
                                         _result = _result.replace('{{core.class}}', _core[i].class !== null ? helpers.makeObjectClass(_core[i].class) : '');
                                         _result = _result.replace('{{core.attributes}}', _attributes);
                                         _result = _result.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
-                                        _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID(_core[i].type, i));
+                                        _result = _result.replace(/{{gen.id}}/g, helpers.makeGeneratorID({type:_core[i].type,unit:i}));
                                         _result = _core[i].disabled !== '' && _core[i].disabled !== undefined && _core[i].disabled === true ? _result.replace('{{object.parent.disabled}}', 'disabled') : _result.replace(' {{object.parent.disabled}}', '');
                                         _result = _styleString !== '' && _styleString !== undefined ? _result.replace('{{gen.style}}', 'style="' + _styleString + '"') : _result.replace('{{gen.style}}', '');
                                         _structure += _result;
                                     }
                                 } else {
-                                    var _template = helpers.getTemplate(_core[i].template, _core[i].type);
+                                    var _template = helpers.getTemplate({item:_core[i].template,type:_core[i].type});
                                     _template = _template.replace('{{object.parent.content}}', _core[i].content);
                                     _template = _template.replace(/{{gen.id}}/g, _generatorID);
                                     _template = _template.replace('{{gen.type}}', helpers.makeObjectType(_core[i].type + '.' + _core[i].template));
@@ -911,12 +973,12 @@ var generator = {
                                     if (_template.indexOf('@include') > -1) {
                                         var _inclusion = _template.split('@include:')[1].split('}}')[0],
                                             _coreReference = _inclusion.split('.')[1],
-                                            _toAdd = helpers.getTemplate(_inclusion),
+                                            _toAdd = helpers.getTemplate({item:_inclusion}),
                                             _toRemove = '{{@include:' + _inclusion + '}}';
                                         for (obj in generator.core) {
                                             if (generator.core[obj].type == _coreReference) {
                                                 _toAdd = _toAdd.replace(/{{object.parent.id}}/g, generator.core[obj].id);
-                                                _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID(generator.core[obj].type, obj));
+                                                _toAdd = _toAdd.replace(/{{gen.id}}/g, helpers.makeGeneratorID({type:generator.core[obj].type,unit:obj}));
                                             }
                                         }
                                         _template = _template.replace(_toRemove, _toAdd);
@@ -949,7 +1011,7 @@ var generator = {
                             if (_valid > -1) {
                                 $(_core[i].parent).append(_structure);
                                 $.each(_core[i].events, function (key, value) {
-                                    helpers.makeEventHandlers(key, _generatorID, value);
+                                    helpers.makeEventHandlers({key:key, id:_generatorID, function:value});
                                 });
                             }
                         }
