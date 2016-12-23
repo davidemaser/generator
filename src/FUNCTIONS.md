@@ -121,8 +121,10 @@ ajax.process.content({path:'path/file.json',object:'core',position:2,node:'templ
 
 - ######load {function - generator.ajax.process.content(args)}
 
-```ajax.process.load(args)
-``` This code will query a datasource, return a json formatted string and store that data in the dataHolder object. Optionally you can pass the data to the chunk function, remove specific elements from the json using the remove arguments and parse the data into JSON format. The arguments for this function are as follows.
+```
+ajax.process.load(args)
+```
+This code will query a datasource, return a json formatted string and store that data in the dataHolder object. Optionally you can pass the data to the chunk function, remove specific elements from the json using the remove arguments and parse the data into JSON format. The arguments for this function are as follows.
 
 ```
 {
