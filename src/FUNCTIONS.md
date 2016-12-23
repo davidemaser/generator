@@ -63,7 +63,9 @@ The dataHolder object is a data placeholder that caches json data and returns it
 
 #####=>logData {function - generator.ajax.logData()}
 
-A utility function that prints to console the content of the ajax.dataHolder object.
+A utility function that prints to console the content of the ajax.dataHolder object. 
+
+````ajax.logData()``
 
 #####=>chunk {object - generator.ajax.chunk}
 
@@ -78,12 +80,67 @@ The chunk.status object is a simple feature that contains information about the 
 The chunk.dataHolder is a placeholder for data that is returned by the chunk functions.
 
 - ######set {function - generator.ajax.chunk.set(obj,length)}
+
+```ajax.chunk.set(object,10)```. This code will take the object passed as a parameter and split it into 10 chunks. The chunks can be accessed by calling the dataHolder ```ajax.chunk.dataHolder``` or by using the chunk.get function.
 - ######get {function - generator.ajax.chunk.get(start,length)}
+```ajax.chunk.get(0,10)``` This code will return all data chunks from entry 0 to entry 10. Chunks can be paginated using the ajax.paginate function. 
 
 #####=>process {object - generator.ajax.process}
 
 - ######content {function - generator.ajax.process.content(args)}
+```ajax.process.content(args)``` This code will query a datasource, return a json object and place the returned data into the object that called it. The arguments for this function are the following.
+
+```
+{
+    path:'path/to/json',
+    object:'root_json_object', //(i.e. data.object)
+    position:1, //optional : if returned json is an array, you can specify which item to return (i.e. data.object[5])
+    node:'' //optional : if only a specific element is required, call it by key (i.e. data.object[5].keyName)
+}
+```
+The ajax call is executed within a promise object. If the ajax call was successful and data is returned, the promise will resolve a success and return the result of the ajax query. The following function will print the result of the query to console when it has finished succesfully.
+
+```
+ajax.process.content({path:'path/file.json',object:'core',position:2,node:'template'})
+    .then(function (result) {
+        console.log(result);
+    })
+```
+
 - ######load {function - generator.ajax.process.content(args)}
+```ajax.process.load(args)``` This code will query a datasource, return a json formatted string and store that data in the dataHolder object. Optionally you can pass the data to the chunk function, remove specific elements from the json using the remove arguments and parse the data into JSON format. The arguments for this function are as follows.
+
+```
+{
+    path:'path/to/json',
+    parse:true, //boolean 
+    remove:['string','or','array'], //optional : remove content from the json string
+    chunk:{ //optional : convert the returned data into smaller chunks
+        active:true,
+        length:10
+    },
+    object:'root_json_object', //(i.e. data.object)
+    position:1, //optional : if returned json is an array, you can specify which item to return (i.e. data.object[5])
+    node:'' //optional : if only a specific element is required, call it by key (i.e. data.object[5].keyName)
+}
+```
+This function can be placed in a jQuery $.when().done() statement to ensure that all other functions are deferred to when the function has completed. The following snippet illustrates this function.
+```
+$.when(ajax.process.load({
+                             path:'path/to/json',
+                             parse:true,
+                             remove:['this','word','and','that','word'],
+                             chunk:{
+                                 active:true,
+                                 length:5
+                             },
+                             object:'root_json_object', 
+                             position:1, 
+                             node:''
+                         }))
+.done(function(){someOtherFunction();});
+```
+Once this function has executed, the returned data can be accessed by calling the ajax.dataHolder object or, if the data was chunked, by calling the ajax.chunk.dataHolder object. To check if any data chunks exists, call ajax.chunk.status.available. It will return true if chunked data is found. 
 - ######save {function - generator.ajax.process.content(args)}
 
 #####=>paginate {object - generator.ajax.paginate}

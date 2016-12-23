@@ -1,6 +1,6 @@
 # GENERATOR
 
-Generator is a templating engine built with jQuery that adopts a flexible approach to template based web components. The script can build an entire page structure from a JSON file or build specific components "a la carte". Generator can attach external scripts to specific template objects and load them when and if they are needed. The script is fully extendable, so new templates can be injected on the fly or added to the code itself. Generator can also be extended by creating plugins that are loaded into the core at runtime. 
+Generator is a templating framework engine built with jQuery that adopts a flexible approach to template based web components and data drive web elements. The script can build an entire page structure from a JSON file or build specific components "a la carte". Generator can attach external scripts to specific template objects and load them when and if they are needed. The script is fully extendable, so new templates can be injected on the fly or added to the code itself. Generator can also be extended by creating plugins that are loaded into the core at runtime. 
 
 ###Use
 
@@ -63,7 +63,7 @@ In the example above, the parent UL tag has it's own core and generator paramete
 
 -> Double braces
 
-These tags (from hereon in we'll call them generator tags) are the building blocks of generator template tags. They are essentially placeholders for inline elements such as class, id, attributes, styles, values, etc... Not all template objects inherit the same template tags. Below is a list of currently supported generator tags.
+These tags (hereon in referred to as generator tags) are the building blocks of generator template tags. They are essentially placeholders for inline elements such as class, id, attributes, styles, values, etc... Not all template objects inherit the same template tags. Below is a list of currently supported generator tags.
 
 - gen.id [string-generated]: builds a unique id for EACH generator object
 - gen.type [string-generated] : displays the generator object type (useful for styling and scripted animations)
@@ -97,9 +97,17 @@ Iterative directives tell the inject function what to do with multiple instances
 - unique : returns only unique items in an array on a first come first served basis. 
 - unique.child : a mix of the each.child directive and the unique directive
 
+-> Conditions
+
+- if : {{if:[condition]}}<code block>{{~if}}
+- else : {{else}}<code block>
+- elsif : {{elsif:[condition]}}
+- unless : {{unless:[condition]}}<code block>{{~unless}}
+- except : {{except:[condition]}}
+
 -> JSON Data
 
-- ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:{src=assets/file,root=object_root,node=node_name}]. Ajax functions can be added to other iterative directives (i.e. {{@inject:[%each.child%],ajax:[{src='assets/file',root='object_root',node='node_name'}]}})
+- ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:{src=assets/file,root=object_root,node=node_name}]. Ajax functions can be added to other iterative directives (i.e. {{@inject:[%each.child%],ajax:[{src='assets/file',root='object_root',node='node_name'}]}}). When this markup is detected in your code, the ajax.process.content function is executed and the returned string or object is output. If an iterative directive is detected and the returned object is an array, each array item will be output.
 
 ###Plugins
 

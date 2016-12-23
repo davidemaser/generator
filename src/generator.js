@@ -208,7 +208,10 @@ var generator = {
                          path:'',
                          parse:true,
                          remove:['string','or','array'],
-                         chunk:false,
+                         chunk:{
+                            active:true,
+                            length:10
+                         },
                          object:'',
                          position:1,
                          node:''
@@ -254,7 +257,7 @@ var generator = {
                         }).done(function () {
                             parseSource(ajax.dataHolder);
                         }).done(function () {
-                            args.chunk == true ? ajax.chunk.set(null, 5) : false; //chunks the data if true
+                            args.chunk.active !== undefined && args.chunk.active == true ? ajax.chunk.set(null, args.chunk.length || 5) : false; //chunks the data if true
                         });
                 },
                 save:function(args){
