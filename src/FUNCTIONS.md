@@ -73,33 +73,39 @@ ajax.logData()
 
 Chunk is an ajax utility object that breaks large data into smaller, more manageable chunks of data. 
 
-- ######status {object - generator.ajax.chunk.status}
+- status {object - generator.ajax.chunk.status}
 
 The chunk.status object is a simple feature that contains information about the chunked data objects. 
 
-- ######dataHolder {object - generator.ajax.chunk.dataHolder}
+- dataHolder {object - generator.ajax.chunk.dataHolder}
 
 The chunk.dataHolder is a placeholder for data that is returned by the chunk functions.
 
-- ######set {function - generator.ajax.chunk.set(obj,length)}
+- set {function - generator.ajax.chunk.set(obj,length)}
 
 ```
 ajax.chunk.set(object,10)
-```. This code will take the object passed as a parameter and split it into 10 chunks. The chunks can be accessed by calling the dataHolder ```ajax.chunk.dataHolder``` or by using the chunk.get function.
+``` 
 
-- ######get {function - generator.ajax.chunk.get(start,length)}
+This code will take the object passed as a parameter and split it into 10 chunks. The chunks can be accessed by calling the dataHolder ```ajax.chunk.dataHolder``` or by using the chunk.get function.
+
+- get {function - generator.ajax.chunk.get(start,length)}
 
 ```
 ajax.chunk.get(0,10)
-``` This code will return all data chunks from entry 0 to entry 10. Chunks can be paginated using the ajax.paginate function. 
+``` 
+
+This code will return all data chunks from entry 0 to entry 10. Chunks can be paginated using the ajax.paginate function. 
 
 #####=>process {object - generator.ajax.process}
 
-- ######content {function - generator.ajax.process.content(args)}
+- content {function - generator.ajax.process.content(args)}
 
 ```
 ajax.process.content(args)
-``` This code will query a datasource, return a json object and place the returned data into the object that called it. The arguments for this function are the following.
+``` 
+
+This code will query a datasource, return a json object and place the returned data into the object that called it. The arguments for this function are the following.
 
 ```
 {
@@ -119,7 +125,7 @@ ajax.process.content({path:'path/file.json',object:'core',position:2,node:'templ
     })
 ```
 
-- ######load {function - generator.ajax.process.content(args)}
+- load {function - generator.ajax.process.content(args)}
 
 ```
 ajax.process.load(args)
