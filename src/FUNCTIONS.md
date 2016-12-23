@@ -65,7 +65,7 @@ The dataHolder object is a data placeholder that caches json data and returns it
 
 A utility function that prints to console the content of the ajax.dataHolder object. 
 
-````ajax.logData()``
+```ajax.logData()```
 
 #####=>chunk {object - generator.ajax.chunk}
 
@@ -82,12 +82,15 @@ The chunk.dataHolder is a placeholder for data that is returned by the chunk fun
 - ######set {function - generator.ajax.chunk.set(obj,length)}
 
 ```ajax.chunk.set(object,10)```. This code will take the object passed as a parameter and split it into 10 chunks. The chunks can be accessed by calling the dataHolder ```ajax.chunk.dataHolder``` or by using the chunk.get function.
+
 - ######get {function - generator.ajax.chunk.get(start,length)}
+
 ```ajax.chunk.get(0,10)``` This code will return all data chunks from entry 0 to entry 10. Chunks can be paginated using the ajax.paginate function. 
 
 #####=>process {object - generator.ajax.process}
 
 - ######content {function - generator.ajax.process.content(args)}
+
 ```ajax.process.content(args)``` This code will query a datasource, return a json object and place the returned data into the object that called it. The arguments for this function are the following.
 
 ```
@@ -98,6 +101,7 @@ The chunk.dataHolder is a placeholder for data that is returned by the chunk fun
     node:'' //optional : if only a specific element is required, call it by key (i.e. data.object[5].keyName)
 }
 ```
+
 The ajax call is executed within a promise object. If the ajax call was successful and data is returned, the promise will resolve a success and return the result of the ajax query. The following function will print the result of the query to console when it has finished succesfully.
 
 ```
@@ -108,6 +112,7 @@ ajax.process.content({path:'path/file.json',object:'core',position:2,node:'templ
 ```
 
 - ######load {function - generator.ajax.process.content(args)}
+
 ```ajax.process.load(args)``` This code will query a datasource, return a json formatted string and store that data in the dataHolder object. Optionally you can pass the data to the chunk function, remove specific elements from the json using the remove arguments and parse the data into JSON format. The arguments for this function are as follows.
 
 ```
@@ -124,7 +129,9 @@ ajax.process.content({path:'path/file.json',object:'core',position:2,node:'templ
     node:'' //optional : if only a specific element is required, call it by key (i.e. data.object[5].keyName)
 }
 ```
+
 This function can be placed in a jQuery $.when().done() statement to ensure that all other functions are deferred to when the function has completed. The following snippet illustrates this function.
+
 ```
 $.when(ajax.process.load({
                              path:'path/to/json',
@@ -140,7 +147,9 @@ $.when(ajax.process.load({
                          }))
 .done(function(){someOtherFunction();});
 ```
+
 Once this function has executed, the returned data can be accessed by calling the ajax.dataHolder object or, if the data was chunked, by calling the ajax.chunk.dataHolder object. To check if any data chunks exists, call ajax.chunk.status.available. It will return true if chunked data is found. 
+
 - ######save {function - generator.ajax.process.content(args)}
 
 #####=>paginate {object - generator.ajax.paginate}
