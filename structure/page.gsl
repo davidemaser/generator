@@ -1,0 +1,18 @@
+<!DOCTYPE gsl>
+<gsl lang="en">
+    <head>
+
+    </head>
+<body>
+<gsl if this %has% 'something'>
+
+<gsl elsif this %hasnot% 'something'>
+
+<gsl else>
+
+</gsl>
+
+<gsl comment></gsl>
+</body>
+
+</gsl>
