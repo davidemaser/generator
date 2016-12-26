@@ -20,5 +20,14 @@ var parser = {
              the configuration is all set up so we can start
              doing the actual core of this function
              */
+        },
+        getGslTags:function(){
+            $(Array.prototype.slice.call(document.all)).filter(function () {
+                return /^gsl-/i.test(this.nodeName);
+            }).each(function(){
+                var _node = this.nodeName.toLowerCase();
+                var _type = _node.split('-')[1];
+                console.log(_type);
+            });
         }
 } || {};
