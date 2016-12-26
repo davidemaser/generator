@@ -79,6 +79,14 @@ var generator = {
                     root: 'plugins/translator/',
                     format: 'json'
                 }
+            },
+            {
+                parser: {
+                    activate: true,
+                    observe: 'gsl',
+                    root: 'plugins/gslParse/',
+                    format: 'json'
+                }
             }
         ],
         template: {
