@@ -4,15 +4,31 @@
 
     </head>
 <body>
-<gsl if this %has% 'something'>
-
-<gsl elsif this %hasnot% 'something'>
-
-<gsl else>
-
-</gsl>
-
-<gsl comment></gsl>
+<gsl-if [this %has% "something"]>
+    <gsl-elsif [this %hasnot% "something"]></gsl-elsif>
+    <gsl-else></gsl-else>
+</gsl-if>
+<gsl-query>
+    //common sql here
+</gsl-query>
+<gsl-comment></gsl-comment>
+<gsl-notes author="" data=""></gsl-notes>
+<gsl-tag repeat:10 content="" class="">li</gsl-tag>
+<gsl-tag href="" content="">a</gsl-tag>
+<gsl-data reference="dataSource1" type="json"></gsl-data>
+<gsl-markup>
+    body
+      div#id
+        span.class
+          a@link.html
+        span
+          a
+        ul
+          li:5/data:dataSource
+        select
+          option:5/data:dataSource1
+      div
+</gsl-markup>
 </body>
 
 </gsl>

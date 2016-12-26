@@ -56,10 +56,10 @@
                     "expects":null
                   },
                   {
-                    "markup":"parse",
+                    "markup":"data",
                     "role":"data",
                     "requires":"content",
-                    "accepts":["type","encoding"],
+                    "accepts":["type","reference"],
                     "expects":"string"
                   },
                   {
@@ -68,13 +68,26 @@
                     "requires":"content",
                     "accepts":null,
                     "expects":null
+                  },{
+                    "markup":"note",
+                    "role":"literal",
+                    "requires":"content",
+                    "accepts":["author","date"],
+                    "expects":"string"
                   },
                   {
                     "markup":"query",
                     "role":"query",
-                    "requires":"phrase",
+                    "requires":"sql",
                     "accepts":null,
-                    "expects":"gql"
+                    "expects":"string"
+                  },
+                  {
+                    "markup":"markup",
+                    "role":"layout",
+                    "requires":"element",
+                    "accepts":["repeat","content","href","class","id","data"],
+                    "expects":"string"
                   }
                 ]
               }
