@@ -84,7 +84,7 @@ var generator = {
                 parser: {
                     activate: true,
                     observe: 'gsl',
-                    root: 'plugins/gslParse/',
+                    root: 'plugins/parser/',
                     format: 'json'
                 }
             }
