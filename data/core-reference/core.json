@@ -56,10 +56,10 @@
                     "expects":null
                   },
                   {
-                    "markup":"parse",
+                    "markup":"data",
                     "role":"data",
                     "requires":"content",
-                    "accepts":["type","encoding"],
+                    "accepts":["type","reference"],
                     "expects":"string"
                   },
                   {
@@ -72,7 +72,7 @@
                   {
                     "markup":"query",
                     "role":"query",
-                    "requires":"phrase",
+                    "requires":"sql",
                     "accepts":null,
                     "expects":"gql"
                   }
