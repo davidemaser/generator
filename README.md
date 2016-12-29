@@ -99,10 +99,10 @@ Iterative directives tell the inject function what to do with multiple instances
 
 -> Conditions
 
-- if : {{if:[condition]}}<code block>{{~if}}
-- else : {{else}}<code block>
+- if : {{if:[condition]}}{{~if}}
+- else : {{else}}
 - elsif : {{elsif:[condition]}}
-- unless : {{unless:[condition]}}<code block>{{~unless}}
+- unless : {{unless:[condition]}}{{~unless}}
 - except : {{except:[condition]}}
 
 -> JSON Data
