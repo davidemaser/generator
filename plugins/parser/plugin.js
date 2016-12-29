@@ -1,5 +1,11 @@
 /**
  * Created by David Maser on 14/12/16.
+ *
+ * This script's main purpose is to layout
+ * GSL format pages in a standard html format
+ * after parsing directives and instructions
+ * See page.gsl for more information about the
+ * markup and semantics
  */
 var parser = {
         id : 'parser',
