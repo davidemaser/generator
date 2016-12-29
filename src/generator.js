@@ -545,6 +545,154 @@ var generator = {
              }
         },
         helpers: {
+            addAndRemoveParams:function(args,obj){
+                /*
+                 args format is :
+                 {
+                 object:'body',
+                 class:{
+                 add:['string','or','array'],
+                 rem:['other','values']
+                 },
+                 attr:{
+                 add:[{'data-href':'this'},{'data-high-time':'this'},{'data-bridge':'this'}],
+                 rem:[{'data-href':'this',value:'that'}]
+                 }
+                 }
+                 */
+                obj = obj || args.object;
+                for(var a in args){
+                    if(args.hasOwnProperty(a)) {
+                        switch (a) {
+                            case 'class':
+                                var value = args[a];
+                                if(typeof value == 'object'){
+                                    for(var c in value){
+                                        switch (c) {
+                                            case 'add':
+                                                if(Array.isArray(value[c])) {
+                                                    var array = value[c];
+                                                    for(var ar in array){
+                                                        $(obj).addClass(array[ar]);
+                                                    }
+                                                }else{
+                                                    $(obj).addClass(value[c]);
+                                                }
+                                                break;
+                                            case 'rem':
+                                                if(Array.isArray(value[c])) {
+                                                    array = value[c];
+                                                    for(ar in array){
+                                                        $(obj).removeClass(array[ar]);
+                                                    }
+                                                }else{
+                                                    $(obj).removeClass(value[c]);
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }else{
+                                    //args[a]
+                                }
+                                break;
+                            case 'attr':
+                                var attr = args[a];
+                                if(typeof value == 'object'){
+                                    for(var o in attr){
+                                        switch (o) {
+                                            case 'add':
+                                                if(Array.isArray(attr[o])){
+                                                    array = attr[o];
+                                                    for(ar in array){
+                                                        //expects object
+                                                        $.each(array[ar],function(key,value){
+                                                            $(obj).attr(key,value);
+                                                        });
+                                                    }
+                                                }else{
+                                                    if(typeof attr[o] == 'object'){
+                                                        $.each(attr[o],function(key,value){
+                                                            $(obj).attr(key,value);
+                                                        });
+                                                    }else{
+                                                        //attr[o]
+                                                    }
+                                                }
+                                                break;
+                                            case 'rem':
+                                                if(Array.isArray(attr[o])){
+                                                    array = attr[o];
+                                                    for(ar in array){
+                                                        //expects object
+                                                        $.each(array[ar],function(key,value){
+                                                            $(obj).removeAttr(key);
+                                                        });
+                                                    }
+                                                }else{
+                                                    if(typeof attr[o] == 'object'){
+                                                        $.each(attr[o],function(key,value){
+                                                            $(obj).removeAttr(key);
+                                                        });
+                                                    }else{
+                                                        //attr[o]
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 'css':
+                                attr = args[a];
+                                if(typeof value == 'object'){
+                                    for(o in attr){
+                                        switch (o) {
+                                            case 'add':
+                                                if(Array.isArray(attr[o])){
+                                                    array = attr[o];
+                                                    for(ar in array){
+                                                        //expects object
+                                                        $.each(array[ar],function(key,value){
+                                                            $(obj).css(key,value);
+                                                        });
+                                                    }
+                                                }else{
+                                                    if(typeof attr[o] == 'object'){
+                                                        $.each(attr[o],function(key,value){
+                                                            $(obj).css(key,value);
+                                                        });
+                                                    }else{
+                                                        //attr[o]
+                                                    }
+                                                }
+                                                break;
+                                            case 'rem':
+                                                if(Array.isArray(attr[o])){
+                                                    array = attr[o];
+                                                    for(ar in array){
+                                                        //expects object
+                                                        $.each(array[ar],function(key,value){
+                                                            $(obj).css(key);
+                                                        });
+                                                    }
+                                                }else{
+                                                    if(typeof attr[o] == 'object'){
+                                                        $.each(attr[o],function(key,value){
+                                                            $(obj).css(key);
+                                                        });
+                                                    }else{
+                                                        //attr[o]
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            },
             adoptChidren: function (args) {
                 /*
                 args format is:
