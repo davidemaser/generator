@@ -54,69 +54,86 @@ var former = {
         },
         build:{
             requiresClosure:['select'],
+            childSchema:{select:'option',option:'label'},
             form:function(obj){
                 if(typeof obj == 'object'){
                     var _formWrapper = f.config.template.form;
                     for(var o in obj){
-                        _formWrapper = _formWrapper.replace('{{former.id}}',obj[o].id).replace('{{former.class}}',obj[o].class).replace('{{former.name}}',obj[o].name);
-                        if(obj[o].attributes !== undefined && typeof obj[o].attributes == 'object'){
-                            var _attrObj = obj[o].attributes;
-                            var _attrString = '';
-                            for(var a in _attrObj){
-                                _attrString += a+'="'+_attrObj[a]+'" ';
-                            }
-                            _attrString = _attrString.trim();
-                            _formWrapper = _formWrapper.replace('{{form.attr}}',_attrString);
-                        }else{
-                            _formWrapper = _formWrapper.replace('{{form.attr}}','');
-                        }
-                        if(obj[o].action !== undefined && typeof obj[o].action == 'object'){
-                            var _action = obj[o].action;
-                                        if (_action.type == 'json') {
-                                            _formWrapper = _formWrapper.replace(' action="{{former.action}}"','')
-                                            $('body').on('submit', 'form', function () {
-                                                $.ajax({
-                                                    url:_action.url,
-                                                    method:_action.method,
-                                                    timeout:_action.timeout,
-                                                    succes:function(){
-
-                                                    },
-                                                    error:function(){
-
-                                                    }
-                                                })
-                                            });
-                                        }
-                        }else if(obj[o].action !== undefined && typeof obj[o].action !== 'object'){
-                            _formWrapper = _formWrapper.replace('{{former.action}}',obj[o].action).trim();
-                        }else{
-                            _formWrapper = _formWrapper.replace(' action="{{former.action}}"','')
-                        }
-                        /*
-                        handle each item in the form as well as each
-                        items options or attributes
-                         */
-                        if(obj[o].items !== undefined && Array.isArray(obj[o].items)){
-                            var _items = obj[o].items;
-                            var _itemString = '';
-                            var nil = undefined = '';
-                            for(var i in _items){
-                                _itemString += '<'+_items[i].element;
-                                _itemString += _items[i].type !== undefined && _items[i].type !== '' ? ' type="'+_items[i].type+'"' : '';
-                                _itemString += _items[i].name !== undefined && _items[i].name !== '' ? ' name="'+_items[i].name+'"' : '';
-                                _itemString += _items[i].class !== undefined && _items[i].class !== '' ? ' class="'+_items[i].class+'"' : '';
-                                _itemString += _items[i].id !== undefined && _items[i].id !== '' ? ' id="'+_items[i].id+'"' : '';
-                                _itemString += _items[i].value !== undefined && _items[i].value !== '' ? ' value="'+_items[i].value+'"' : '';
-                                _itemString += _items[i].placeholder !== undefined && _items[i].placeholder !== '' ? ' placeholder="'+_items[i].placeholder+'"' : '';
-                                _itemString += '>';
-                                if($.inArray(_items[i].element,build.requiresClosure)>-1){
-                                    _itemString += '</'+_items[i].element+'>';
+                        if (obj.hasOwnProperty(o)) {
+                            _formWrapper = _formWrapper.replace('{{former.id}}', obj[o].id).replace('{{former.class}}', obj[o].class).replace('{{former.name}}', obj[o].name);
+                            if (obj[o].attributes !== undefined && typeof obj[o].attributes == 'object') {
+                                var _attrObj = obj[o].attributes;
+                                var _attrString = '';
+                                for (var a in _attrObj) {
+                                    _attrString += a + '="' + _attrObj[a] + '" ';
                                 }
-                                console.log(_items[i],_itemString,$.inArray(_items[i].element,build.requiresClosure))
+                                _attrString = _attrString.trim();
+                                _formWrapper = _formWrapper.replace('{{form.attr}}', _attrString);
+                            } else {
+                                _formWrapper = _formWrapper.replace('{{form.attr}}', '');
                             }
+                            if (obj[o].action !== undefined && typeof obj[o].action == 'object') {
+                                var _action = obj[o].action;
+                                if (_action.type == 'json') {
+                                    _formWrapper = _formWrapper.replace(' action="{{former.action}}"', '')
+                                    $('body').on('submit', 'form', function () {
+                                        $.ajax({
+                                            url: _action.url,
+                                            method: _action.method,
+                                            timeout: _action.timeout,
+                                            succes: function () {
+
+                                            },
+                                            error: function () {
+
+                                            }
+                                        })
+                                    });
+                                }
+                            } else if (obj[o].action !== undefined && typeof obj[o].action !== 'object') {
+                                _formWrapper = _formWrapper.replace('{{former.action}}', obj[o].action).trim();
+                            } else {
+                                _formWrapper = _formWrapper.replace(' action="{{former.action}}"', '')
+                            }
+                            /*
+                             handle each item in the form as well as each
+                             items options or attributes
+                             */
+                            if (obj[o].items !== undefined && Array.isArray(obj[o].items)) {
+                                var _items = obj[o].items;
+                                var _itemString = '';
+                                for (var i in _items) {
+                                    if (_items.hasOwnProperty(i)) {
+                                        _itemString += '<' + _items[i].element;
+                                        _itemString += _items[i].type !== undefined && _items[i].type !== '' ? ' type="' + _items[i].type + '"' : '';
+                                        _itemString += _items[i].name !== undefined && _items[i].name !== '' ? ' name="' + _items[i].name + '"' : '';
+                                        _itemString += _items[i].class !== undefined && _items[i].class !== '' ? ' class="' + _items[i].class + '"' : '';
+                                        _itemString += _items[i].id !== undefined && _items[i].id !== '' ? ' id="' + _items[i].id + '"' : '';
+                                        _itemString += _items[i].value !== undefined && _items[i].value !== '' ? ' value="' + _items[i].value + '"' : '';
+                                        _itemString += _items[i].placeholder !== undefined && _items[i].placeholder !== '' ? ' placeholder="' + _items[i].placeholder + '"' : '';
+                                        _itemString += '>';
+                                        if (_items[i].options !== undefined && _items[i].options !== null) {
+                                            var _options = _items[i].options;
+                                            var _optionTag = build.childSchema[_items[i].element];
+                                            var _optionString = '';
+                                            if (_optionTag !== undefined) {
+                                                for (var op in _options) {
+                                                    if (_options.hasOwnProperty(op)) {
+                                                        _optionString += '<' + _optionTag + ' value="' + _options[op].value + '">';
+                                                        _optionString += _options[op].label;
+                                                        _optionString += '</' + _optionTag + '>'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        _itemString += _optionString !== undefined && _optionString !== '' ? _optionString : '';
+                                        _itemString += $.inArray(_items[i].element, build.requiresClosure) > -1 ? '</' + _items[i].element + '>' : '';
+                                    }
+                                }
+                            }
+                            _formWrapper = _formWrapper.replace('{{former.items}}', _itemString);
+                            console.log(_formWrapper);
                         }
-                        console.log(_formWrapper);
                     }
                 }else{
 

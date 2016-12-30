@@ -31,10 +31,38 @@
         "id":"",
         "value":"this",
         "placeholder":"your place",
+        "events":"",
+        "validate":{
+          "content":"string",
+          "maximum":200,
+          "contains":["@","www"]
+        }
+      },{
+        "element":"select",
+        "name":"mySelect",
+        "label":{
+          "position":"above",
+          "text":"",
+          "adjust":{
+            "margin-top":"10px"
+          }
+        },
+        "class":"",
+        "id":"",
+        "placeholder":"your place",
         "options":[
           {
-            "label":"",
-            "value":"",
+            "label":"this",
+            "value":"1",
+            "events":[
+              {
+                "detect":"click",
+                "function":"console.log('hi')"
+              }
+            ]
+          },{
+            "label":"that",
+            "value":"2",
             "events":[
               {
                 "detect":"click",
