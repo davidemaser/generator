@@ -22,7 +22,7 @@ var former = {
             template:{
                 form:'<form id="{{former.id}}" class="{{former.class}}" name="{{former.name}}" {{form.attr}} action="{{former.action}}">{{former.items}}</form>'
             },
-            requiresClosure:['select'],
+            requiresClosure:['select','button','textarea','fieldset'],
             childSchema:{select:'option',option:'label'}
         },
         setup:function(args){
