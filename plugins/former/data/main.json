@@ -1,0 +1,58 @@
+{
+  "form":{
+    "id":"first-form",
+    "class":"this that these",
+    "name":"new form",
+    "attributes":{
+      "data-href":"source",
+      "data-bit":"this",
+      "data-bot":"tat"
+    },
+    "type":"",
+    "action":{
+      "type":"json",
+      "method":"POST",
+      "url":"http://www.this.form.do.com",
+      "timeout":50000
+    },
+    "items":[
+      {
+        "element":"input",
+        "type":"text",
+        "name":"mytextArea",
+        "label":{
+          "position":"above",
+          "text":"",
+          "adjust":{
+            "margin-top":"10px"
+          }
+        },
+        "class":"",
+        "id":"",
+        "value":"this",
+        "placeholder":"your place",
+        "options":[
+          {
+            "label":"",
+            "value":"",
+            "events":[
+              {
+                "detect":"click",
+                "function":"console.log('hi')"
+              }
+            ]
+          }
+        ],
+        "events":"",
+        "validate":{
+          "content":"string",
+          "maximum":200,
+          "contains":["@","www"]
+        }
+      }
+    ],
+    "styles": {
+      "background-color": "#fff"
+    }
+  }
+}
