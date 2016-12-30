@@ -21,7 +21,9 @@ var former = {
             },
             template:{
                 form:'<form id="{{former.id}}" class="{{former.class}}" name="{{former.name}}" {{form.attr}} action="{{former.action}}">{{former.items}}</form>'
-            }
+            },
+            requiresClosure:['select'],
+            childSchema:{select:'option',option:'label'}
         },
         setup:function(args){
             /*
@@ -53,8 +55,6 @@ var former = {
             }
         },
         build:{
-            requiresClosure:['select'],
-            childSchema:{select:'option',option:'label'},
             form:function(obj){
                 if(typeof obj == 'object'){
                     var _formWrapper = f.config.template.form;
@@ -114,7 +114,7 @@ var former = {
                                         _itemString += '>';
                                         if (_items[i].options !== undefined && _items[i].options !== null) {
                                             var _options = _items[i].options;
-                                            var _optionTag = build.childSchema[_items[i].element];
+                                            var _optionTag = config.childSchema[_items[i].element];
                                             var _optionString = '';
                                             if (_optionTag !== undefined) {
                                                 for (var op in _options) {
@@ -127,7 +127,7 @@ var former = {
                                             }
                                         }
                                         _itemString += _optionString !== undefined && _optionString !== '' ? _optionString : '';
-                                        _itemString += $.inArray(_items[i].element, build.requiresClosure) > -1 ? '</' + _items[i].element + '>' : '';
+                                        _itemString += $.inArray(_items[i].element, config.requiresClosure) > -1 ? '</' + _items[i].element + '>' : '';
                                     }
                                 }
                             }
