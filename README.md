@@ -6,11 +6,15 @@ Generator is a templating framework engine built with jQuery that adopts a flexi
 
 Assuming you are using jQuery, add the script to your page (in the head if you are building the core structure of your page or before the closing body tag if you are using it to generate components)
 
-```<script src="src/generator.min.js"></script>```
+```
+<script src="src/generator.min.js"></script>
+```
 
 If you'd like to use a packaged version of generator that includes the latest jQuery library, use:
 
-```<script src="src/generator_package.js"></script>```
+```
+<script src="src/generator_package.js"></script>
+```
 
 The non minified, non packaged version of the script is in the src folder of the project. 
 
@@ -99,7 +103,7 @@ Iterative directives tell the inject function what to do with multiple instances
 
 -> Conditions
 
-- if : {{if:[condition]}}{{~if}}
+- if : \{\{if:[condition]\}\}\{\{~if\}\}
 - else : {{else}}
 - elsif : {{elsif:[condition]}}
 - unless : {{unless:[condition]}}{{~unless}}
