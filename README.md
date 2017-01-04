@@ -55,7 +55,7 @@ Extensions use the following schema. Generator uses two sorts of templates; dire
 
 Example Code :
 
-```json
+```javascript
 select:{
     parent:"<select {{gen.id}}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</select>",
     child : "<option {{gen.id}} {{gen.type}} {{core.value}}>{{object.child.content}}</option>"
@@ -128,7 +128,7 @@ To include a plugin, add it to the generator.plugin array with all core paramete
 ```javascript
 plugin_name:{
 	activate:true,
-	root:'path_to_the_plugin_folder,
+	root:'path_to_the_plugin_folder',
 	format:'file_format'
 }
 ```
@@ -141,7 +141,7 @@ Plugins all reside under the plugins/ folder in the project root. The folder mus
 
 To get started, create a folder under the plugins/ folder with the name of your plugin. In this folder, all you will need is a plugin.js file. This file will contain all the functions and methods of your plugin. The plugin code must follow the following syntax rules.
 
-```
+```javascript
 var plugin_name = {
     id : 'plugin_name',
     config:{},
