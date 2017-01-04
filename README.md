@@ -57,8 +57,8 @@ Example Code :
 
 ```
 select:{
-    parent:"<select &#123;&#123;gen.id&#125;&#125;  &#123;&#123;gen.type&#125;&#125;  &#123;&#123;core.class&#125;&#125;  &#123;&#123;object.parent.disabled&#125;&#125;  &#123;&#123;core.attributes&#125;&#125;  &#123;&#123;gen.style&#125;&#125;>&#123;&#123;@inject:[%each.child%]&#125;&#125;</select>",
-    child : "<option  &#123;&#123;gen.id\}\}  &#123;&#123;gen.type&#125;&#125; &#123;&#123;core.value&#125;&#125;> &#123;&#123;object.child.content&#125;&#125;</option>"
+    parent:"<select {{gen.id}}  {{gen.type}}  {{core.class}}  {{object.parent.disabled}}  {{core.attributes}}  {{gen.style}}>{{@inject:[%each.child%]}}</select>",
+    child : "<option  {{gen.id\}\}  {{gen.type}} {{core.value}}> {{object.child.content}}</option>"
 }
 ```
 In the example above, the parent UL tag has it's own core and generator parameters and also an ```@inject``` tag. This inject tag places the child or children into that position. 
