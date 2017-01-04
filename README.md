@@ -56,7 +56,7 @@ Extensions use the following schema. Generator uses two sorts of templates; dire
 Example Code :
 
 ```
-select:&#123;{
+select:*{**
     parent:"<select {{gen.id}}  {{gen.type}}  {{core.class}}  {{object.parent.disabled}}  {{core.attributes}}  {{gen.style}}>{{@inject:[%each.child%]}}</select>",
     child : "<option  {{gen.id}}  {{gen.type}} {{core.value}}> {{object.child.content}}</option>"
 }
