@@ -104,9 +104,22 @@ var former = {
                                 var _itemString = '';
                                 for (var i in _items) {
                                     if (_items.hasOwnProperty(i)) {
+                                        var _itemName = _items[i].name !== undefined && _items[i].name !== '' ? _items[i].name : 'fmr-'+_items[i].element + i;
+                                        _itemString += _items[i].label !== undefined && typeof _items[i].label == 'object' ? '<label for="'+_itemName+'"' : '';
+                                        _itemString += _items[i].label.class !== undefined && _items[i].label.class !== '' ? ' class="'+_items[i].label.class+'"' : '';
+                                        if(_items[i].label !== undefined && _items[i].label.adjust !== undefined && typeof _items[i].label.adjust == 'object'){
+                                            var _styleAdjust = _items[i].label.adjust;
+                                            _itemString += ' style="';
+                                            $.each(_styleAdjust,function(key,value){
+                                                _itemString += key+':'+value+';';
+                                            });
+                                            _itemString += '"';
+                                        }
+                                        _itemString += _items[i].label !== undefined && typeof _items[i].label == 'object' ? '>' : '';
+                                        _itemString += _items[i].label.text !== undefined && _items[i].label.text !== '' ? _items[i].label.text : '';
                                         _itemString += '<' + _items[i].element;
                                         _itemString += _items[i].type !== undefined && _items[i].type !== '' ? ' type="' + _items[i].type + '"' : '';
-                                        _itemString += _items[i].name !== undefined && _items[i].name !== '' ? ' name="' + _items[i].name + '"' : '';
+                                        _itemString += _items[i].name !== undefined && _items[i].name !== '' ? ' name="' + _itemName + '"' : ' name="' + _itemName +'"';
                                         _itemString += _items[i].class !== undefined && _items[i].class !== '' ? ' class="' + _items[i].class + '"' : '';
                                         _itemString += _items[i].id !== undefined && _items[i].id !== '' ? ' id="' + _items[i].id + '"' : '';
                                         _itemString += _items[i].value !== undefined && _items[i].value !== '' ? ' value="' + _items[i].value + '"' : '';
@@ -128,15 +141,56 @@ var former = {
                                         }
                                         _itemString += _optionString !== undefined && _optionString !== '' ? _optionString : '';
                                         _itemString += $.inArray(_items[i].element, config.requiresClosure) > -1 ? '</' + _items[i].element + '>' : '';
+                                        _itemString += _items[i].label !== undefined && typeof _items[i].label == 'object' ? '</label>' : '';
                                     }
+                                    if(_items[i].validate !== undefined && typeof _items[i].validate == 'object'){
+                                        var _validators = _items[i].validate;
+                                    }
+
                                 }
                             }
                             _formWrapper = _formWrapper.replace('{{former.items}}', _itemString);
                             console.log(_formWrapper);
+                            build.validators(_validators);
                         }
                     }
                 }else{
 
+                }
+            },
+            validators:function(text,obj){
+                function hasNumber(str) {
+                    return /\d/.test(str);
+                }
+                function isAlphanumeric(str) {
+                    return /^[0-9a-zA-Z]+$/.test(str);
+                }
+                function hasRequiredString(str,rules) {
+                    if(Array.isArray(rules)){
+                        for(var r in rules){
+                            if(str.indexOf(rules[r])>-1){
+                                return true;
+                            }
+                        }
+                    }
+                }
+                function isIdentical(a,b){
+                    return a.localeCompare(b);
+                }
+                if(typeof obj == 'object'){
+                    $.each(obj,function(key,value){
+                        if(key === 'content'){
+                            if(value === 'string'){
+                                hasNumber(text);
+                            }else if(value === 'alphanum'){
+                                isAlphanumeric(text);
+                            }
+                        }
+                        if(key === 'contains'){
+                            hasRequiredString(text,value);
+                        }
+                        console.log(key,value);
+                    });
                 }
             }
         }
