@@ -57,7 +57,7 @@ Example Code :
 
 ```liquid
 select:{
-    parent:"<select {{gen.id}}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</select>",
+    parent:"<select {{{{gen.id}}}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</select>",
     child : "<option {{gen.id}} {{gen.type}} {{core.value}}>{{object.child.content}}</option>"
 }
 ```
