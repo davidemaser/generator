@@ -31,6 +31,8 @@ If you don't have Node.js installed : https://nodejs.org/en/
 - Install required dependencies : ```$npm install```
 - Launch Grunt : ```$grunt``` or ```$grunt --force``` to skip failed tasks. 
 
+---
+
 ### Templates
 
 The core function has a few built in templates to play around with. These can be found in the generator.template object. See below for a list of parameters used by generator. 
@@ -47,6 +49,8 @@ Each template object can be assigned a parent object. Defining a parent will app
 
 DOM elements or template objects can be assigned children. These children can inherit the parent's attributes all while residing outside of the parent. The child does not have to be within the parent's node tree (although the function allows you to append or prepend the child to the parent). This is very useful when creating trigger items on a page or for delegating activity. You can call the adoptChidren helper function. ```generator.helpers.adoptChidren('parent',['child1','child2','child2'])```
 
+---
+
 ### Extending templates
 
 You can extend the existing templates by injecting a template object on the fly or by loading them from an external JSON file. Generator has an 'extend' function that injects user built templates into the core object, allowing these new templates to be used by the function. Extensions can be bypassed by passing a boolean in the generator.init call (i.e : ```generator.init.core(src,false)```)
@@ -62,6 +66,8 @@ select:{
 }
 ```
 In the example above, the parent UL tag has it's own core and generator parameters and also an ```@inject``` tag. This inject tag places the child or children into that position. 
+
+---
 
 ### Generator Markup Tags
 
@@ -113,6 +119,8 @@ Iterative directives tell the inject function what to do with multiple instances
 
 - ajax : places an ajax call to collect JSON data from a specified source, object and node. If no output is defined, data will be stocked in the ajax.dataHolder object. [@ajax:\{src=assets/file,root=object_root,node=node_name\}]. Ajax functions can be added to other iterative directives (i.e. \{\{@inject:[%each.child%],ajax:[\{src='assets/file',root='object_root',node='node_name'\}]\}\}). When this markup is detected in your code, the ajax.process.content function is executed and the returned string or object is output. If an iterative directive is detected and the returned object is an array, each array item will be output.
 
+---
+
 ### Plugins
 
 Plugins can be scripted as separate JavaScript modules and imported into generator before the core function loads. This allows the user to apply filters or transformations to template objects without modifying the core object. Plugins can be loaded during initialization by calling the generator.init parameter. The parameter syntax allows the user to specify which plugin to load and pass parameters to the plugin. Two parameters are used: the plugin name (and unique identifier) and an array of parameters to pass to the plugin. The syntax is as follows :
@@ -154,6 +162,8 @@ You can add any other function within the core object and call it with ```plugin
 
 When the plugin is called by generator, the plugin.js file will be included via an ajax request. Once the file is loaded, generator will execute the setup function and pass the arguments defined by the user. All arguments and parameters will be added to the config object. Once that is done, the init function is called. All initial calls should be done in the init function. If you don't want your script to execute any functions when the plugin is loaded, leave the init function empty.
 
+---
+
 ### Utility Functions
 
 Generator has some handy utility functions that handle everything from data loading and manipulation to dialog creation to local storage manipulation. These functions allow you to add functionality to template objects using objects scripted in the core. Generator's ajax object allows you to load, parse and modify JSON data in a semantic, objected oriented format. A list of utility objects can be found below.
@@ -175,6 +185,8 @@ Helpers are core objects that execute functions to add or manipulate other gener
 
 NOTE: Helper functions are a work in progress and will continue to be extended during the lifetime of the Generator project.
 
+---
+
 ### Aliases
 
 Some core generator functions/methods can be called using their alias. This will allow you to write less code to call a generator object. Below is a list of aliases.
@@ -192,6 +204,8 @@ Some core generator functions/methods can be called using their alias. This will
 - storage = s => generator.storage
 - scripts => generator.scripts
 - config = c => generator.config
+
+---
 
 ### Author and License 
 
