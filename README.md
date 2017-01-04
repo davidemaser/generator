@@ -55,10 +55,10 @@ Extensions use the following schema. Generator uses two sorts of templates; dire
 
 Example Code :
 
-```
+```json
 select:{
-    parent:"<select {{{gen.id}}}  {{gen.type}}  {{core.class}}  {{object.parent.disabled}}  {{core.attributes}}  {{gen.style}}>{{@inject:[%each.child%]}}</select>",
-    child : "<option  {{gen.id}}  {{gen.type}} {{core.value}}> {{object.child.content}}</option>"
+    parent:"<select {{gen.id}}} {{gen.type}} {{core.class}} {{object.parent.disabled}} {{core.attributes}} {{gen.style}}>{{@inject:[%each.child%]}}</select>",
+    child : "<option {{gen.id}} {{gen.type}} {{core.value}}>{{object.child.content}}</option>"
 }
 ```
 In the example above, the parent UL tag has it's own core and generator parameters and also an ```@inject``` tag. This inject tag places the child or children into that position. 
@@ -125,7 +125,7 @@ If you want to load multiple plugins at once, wrap them in an array [\{\}].
 
 To include a plugin, add it to the generator.plugin array with all core parameters. Core parameters will be passed when the plugin is initialized. Refer to the following syntax.
 
-```
+```javascript
 plugin_name:{
 	activate:true,
 	root:'path_to_the_plugin_folder,
