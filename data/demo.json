@@ -11,7 +11,7 @@
         "data-prop": "negative"
       },
       "content": {
-        "path":"data/demo.json",
+        "path":"../data/demo.json",
         "parse":false,
         "remove":null,
         "chunk":false,
@@ -83,7 +83,7 @@
         "data-prop": ""
       },
       "content": {
-        "path":"data/demo.json",
+        "path":"../data/demo.json",
         "parse":false,
         "remove":null,
         "chunk":false,

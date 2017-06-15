@@ -49,6 +49,7 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin(
       {
+        template:'src/templates/index.html',
         inject:'head',
         cache:true,
         hash:true

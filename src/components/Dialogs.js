@@ -1,6 +1,7 @@
 /**
  * Created by David Maser on 14/06/2017.
  */
+import {helpers} from './Helpers';
 export const dialogs = {
   config: {
     animate: {

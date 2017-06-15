@@ -2,6 +2,8 @@
  * Created by David Maser on 14/06/2017.
  */
 import {config} from './Config';
+import {errors} from './Errors';
+import {template} from './Template';
 export const ajax = {
   dataHolder: {},
   logData: function () {
@@ -46,8 +48,8 @@ export const ajax = {
         ajax.chunk.dataHolder[key] = value;
         _chunkCount++;
       });
-      ajax.chunk.status['available'] = true;
-      ajax.chunk.status['chunk count'] = _chunkCount;
+      this.chunk.status['available'] = true;
+      this.chunk.status['chunk count'] = _chunkCount;
     },
     get:function(args){
       /*

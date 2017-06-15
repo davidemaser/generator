@@ -7,7 +7,7 @@ export const plugins = [
       activate: true,
       observe: 'tr',
       languages: ['en_EN', 'fr_FR'],
-      root: 'plugins/translator/',
+      root: '../plugins/translator/',
       format: 'json'
     }
   },
@@ -15,7 +15,7 @@ export const plugins = [
     parser: {
       activate: true,
       observe: 'gsl',
-      root: 'plugins/parser/',
+      root: '../plugins/parser/',
       format: 'json'
     }
   }

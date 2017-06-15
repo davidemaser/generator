@@ -5,12 +5,12 @@
         "type":{
           "html":"html5",
           "javascript":{
-            "ecma":"2015"
+            "ecma":"es6"
           },
           "libraries":{
             "required":["jquery","generator"],
-            "devRequired":["bower","booster"],
-            "compileRequired":["npm","grunt"]
+            "devRequired":["webpack","booster"],
+            "compileRequired":["npm","webpack"]
           }
         },
         "format":"strict",

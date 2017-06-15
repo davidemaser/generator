@@ -1,7 +1,10 @@
 /**
  * Created by David Maser on 14/06/2017.
  */
-import {ajax} from './ajax';
+import {ajax} from './Ajax';
+import {errors} from './Errors';
+import {generator} from './Generator';
+import {template} from './Template';
 export const helpers = {
   addAndRemoveParams: function (args, obj) {
     /*
@@ -39,8 +42,8 @@ export const helpers = {
                     break;
                   case 'rem':
                     if (Array.isArray(value[c])) {
-                      array = value[c];
-                      for (ar in array) {
+                      let array = value[c];
+                      for (let ar in array) {
                         $(obj).removeClass(array[ar]);
                       }
                     } else {
@@ -60,8 +63,8 @@ export const helpers = {
                 switch (o) {
                   case 'add':
                     if (Array.isArray(attr[o])) {
-                      array = attr[o];
-                      for (ar in array) {
+                      let array = attr[o];
+                      for (let ar in array) {
                         //expects object
                         $.each(array[ar], function (key, value) {
                           $(obj).attr(key, value);
@@ -79,8 +82,8 @@ export const helpers = {
                     break;
                   case 'rem':
                     if (Array.isArray(attr[o])) {
-                      array = attr[o];
-                      for (ar in array) {
+                      let array = attr[o];
+                      for (let ar in array) {
                         //expects object
                         $.each(array[ar], function (key, value) {
                           $(obj).removeAttr(key);
@@ -107,8 +110,8 @@ export const helpers = {
                 switch (o) {
                   case 'add':
                     if (Array.isArray(attr[o])) {
-                      array = attr[o];
-                      for (ar in array) {
+                      let array = attr[o];
+                      for (let ar in array) {
                         //expects object
                         $.each(array[ar], function (key, value) {
                           $(obj).css(key, value);
@@ -126,8 +129,8 @@ export const helpers = {
                     break;
                   case 'rem':
                     if (Array.isArray(attr[o])) {
-                      array = attr[o];
-                      for (ar in array) {
+                      let array = attr[o];
+                      for (let ar in array) {
                         //expects object
                         $.each(array[ar], function (key, value) {
                           $(obj).css(key);
@@ -289,9 +292,10 @@ export const helpers = {
      extracts the template string from the template
      object
      */
+    let _string = '';
     switch (args.type) {
       case 'object':
-        let _string = generator.nomenclature.template;
+        _string = generator.nomenclature.template;
         break;
       case 'component':
         _string = generator.nomenclature.component;
@@ -448,7 +452,6 @@ export const helpers = {
      }
      item can be formatted as a class, an ID, a selector (i.e. :input) or a tag (i.e. form)
      */
-    let _data = args.type === 'array' ? $(args.item).serialize() : $(args.item).serializeArray();
-    return _data;
+    return args.type === 'array' ? $(args.item).serialize() : $(args.item).serializeArray();
   }
 };

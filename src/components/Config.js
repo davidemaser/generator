@@ -10,7 +10,7 @@ export const config = {
   },
   extensions: {
     src: {
-      root: 'data/extensions/index.json',
+      root: '../data/extensions/index.json',
         exists: false
     },
     enable: true
@@ -20,7 +20,7 @@ export const config = {
       extend: false
   },
   scripts: {
-    root: 'lib/src/',
+    root: '../lib/src/',
       extension: {
       format: 'js',
         append: true
